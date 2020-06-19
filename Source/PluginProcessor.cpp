@@ -170,7 +170,8 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         float zeroCrossings = zeroXing.process(clippedSample);
         float freq = freqCalc.freqCalc(zeroCrossings);
         //std::cout << "freq " << freq << "\n";
-        std::cout << "level ";
+        //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
+        transientTracker.transientDetect(filteredSample);
         
         
         sampleL = filteredSample;

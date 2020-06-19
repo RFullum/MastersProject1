@@ -68,6 +68,7 @@ private:
     BandLimiter bandLimiter;
     ZeroXing zeroXing;
     FrequencyCalculation freqCalc;
+    TransientTracker transientTracker;
 
     
     
