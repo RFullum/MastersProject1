@@ -35,7 +35,7 @@ public:
         float fastLevel = getCurrentLevel(sampleIn);
         float slowLevel = slowEnvelope(fastLevel);
         float attackRatio = envelopeDifference(fastLevel, slowLevel);
-        std::cout << "ratio " << attackRatio << "\n";
+        //std::cout << "difference " << attackRatio << "\n";
         if (attackRatio > attackDifferenceThreshold)
         {
             isTransient = true;
