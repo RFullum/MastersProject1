@@ -64,6 +64,12 @@ private:
         writeHeadPos %= crossingBufferSize;
     }
     
+//
+//
+// CONSIDER WRITING 0.0F TO REMAINING BUFFER INDEXES WHEN 3 ZERO CROSSINGS DETECTED
+//
+//
+    
     /**
      Writes samples to buffer from writeHeadPos 0. One full cycle is three zero crossings. When crossingCount
      reaches 3, it finds the length of the cycle by subtracting the first crossing position from the third crossing
