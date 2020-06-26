@@ -30,6 +30,12 @@ public:
     {
         return ( zeroXings * (sampleRate / (float)bufferSize) * 0.5f );
     }
+    
+    float freqCalcAlt(float cycleLength)
+    {
+        return sampleRate / cycleLength;
+    }
+    
 private:
     float sampleRate;
     int bufferSize;

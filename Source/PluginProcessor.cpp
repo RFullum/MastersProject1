@@ -105,14 +105,18 @@ void MasterExp1AudioProcessor::changeProgramName (int index, const String& newNa
 //==============================================================================
 void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    // Sets sampleRate for classes
+    bandLimiter.setSampleRate(sampleRate);
+    freqCalc.setSampleRate(sampleRate);
+    
     // Sets threshold for noiseGate
     noiseGate.setThreshold(0.3f);
     
+    // Sets frequency detection classes buffer size
     zeroXing.setBuffer(frequencyBufferSize);
     freqCalc.setBufferSize(frequencyBufferSize);
     
-    bandLimiter.setSampleRate(sampleRate);
-    freqCalc.setSampleRate(sampleRate);
+    
 
 }
 
@@ -171,8 +175,11 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         float filteredSample = bandLimiter.process(gatedSample);
         float clippedSample = waveClipper.hardClip(filteredSample);
 
-        float zeroCrossings = zeroXing.process(clippedSample);
-        freq = freqCalc.freqCalc(zeroCrossings);
+        //float zeroCrossings = zeroXing.process(clippedSample);
+        //freq = freqCalc.freqCalc(zeroCrossings);
+        float cycleLenght = zeroXing.processAlt(clippedSample);
+        freq = freqCalc.freqCalcAlt(cycleLenght);
+        
         transientTracker.transientDetect(filteredSample);
         
         

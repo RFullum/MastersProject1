@@ -71,7 +71,7 @@ private:
     TransientTracker transientTracker;
     
     float freq; // Frequency derived by zero crossing calculation
-    int frequencyBufferSize = 2048;
+    int frequencyBufferSize = 1024;
     
     // Noise Gate
     std::atomic<float>* gateThreshold;
