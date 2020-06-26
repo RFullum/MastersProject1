@@ -13,19 +13,29 @@
 class ZeroXing
 {
 public:
-    /// Constructor - sets buffer to all 0.0f
+    /**
+     Constructor - Takes in size of buffer. Creates buffer and sets buffer to all 0.0f
+     */
     ZeroXing()
     {
-        for (int i=0; i<crossingBufferSize; i++)
-        {
-            crossingBuffer[i] = 0.0f;
-        }
+    
     }
     
     /// Destructor
     ~ZeroXing()
     {
         delete[] crossingBuffer;
+    }
+    
+    void setBuffer(int bufferSize)
+    {
+        crossingBufferSize = bufferSize;
+        crossingBuffer = new float[crossingBufferSize];
+        
+        for (int i=0; i<crossingBufferSize; i++)
+        {
+            crossingBuffer[i] = 0.0f;
+        }
     }
     
     float process(float sampleIn)
@@ -68,8 +78,8 @@ private:
     
     
     // Member Variables
-    int crossingBufferSize = 1024;
-    float* crossingBuffer = new float[crossingBufferSize];
+    int crossingBufferSize;
+    float* crossingBuffer;
     
     int writeHeadPos = 0;
 };

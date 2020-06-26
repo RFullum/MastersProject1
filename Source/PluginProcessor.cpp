@@ -106,7 +106,11 @@ void MasterExp1AudioProcessor::changeProgramName (int index, const String& newNa
 void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Sets threshold for noiseGate
-    noiseGate.setThreshold(0.1f);
+    noiseGate.setThreshold(0.3f);
+    
+    zeroXing.setBuffer(frequencyBufferSize);
+    freqCalc.setBufferSize(frequencyBufferSize);
+    
     bandLimiter.setSampleRate(sampleRate);
     freqCalc.setSampleRate(sampleRate);
 
@@ -168,9 +172,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         float clippedSample = waveClipper.hardClip(filteredSample);
 
         float zeroCrossings = zeroXing.process(clippedSample);
-        float freq = freqCalc.freqCalc(zeroCrossings);
-        //std::cout << "freq " << freq << "\n";
-        //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
+        freq = freqCalc.freqCalc(zeroCrossings);
         transientTracker.transientDetect(filteredSample);
         
         
@@ -182,6 +184,9 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         rightChannel[i] = sampleR;
         
     }
+    
+    std::cout << "freq " << freq << "\n";
+    //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
 }
 
 //==============================================================================

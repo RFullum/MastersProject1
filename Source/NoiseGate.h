@@ -44,6 +44,7 @@ public:
     {
         float amplitudeValues = 0.0f;
         float averageAmplitude;
+        float sampleOut = 0.0f;
         
         writeToBuffer(sampleIn);
         
@@ -52,17 +53,24 @@ public:
             amplitudeValues += abs(gateBuffer[i]);
         }
         
-        //std::cout << "ampVal " << amplitudeValues << "\n";
-        
         averageAmplitude = amplitudeValues / (float)gateBufferSize;
-        //std::cout  << "avgAmp " << averageAmplitude << "\n";
         
         if (averageAmplitude > threshold)
         {
-            return sampleIn;
+            sampleOut = sampleIn;
+        }
+        else if (silenceCounter < silenceThreshold)
+        {
+            silenceCounter++;
+            sampleOut = sampleIn;
         }
         else
-            return 0.0f;
+        {
+            silenceCounter = 0;
+            sampleOut = 0.0f;
+        }
+        
+        return sampleOut;
     }
     
 private:
@@ -80,5 +88,7 @@ private:
     float* gateBuffer = new float[gateBufferSize];
     
     int writeHeadPos = 0;
+    int silenceCounter = 0;
+    int silenceThreshold = 1024;
     float threshold;
 };

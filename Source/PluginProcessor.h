@@ -69,9 +69,9 @@ private:
     ZeroXing zeroXing;
     FrequencyCalculation freqCalc;
     TransientTracker transientTracker;
-
     
-    
+    float freq; // Frequency derived by zero crossing calculation
+    int frequencyBufferSize = 2048;
     
     // Noise Gate
     std::atomic<float>* gateThreshold;
