@@ -20,23 +20,12 @@ public:
         sampleRate = SR;
     }
     
-    /// Set bufferSize to frequencyBufferSize, same as used in ZeroXingCounter or you'll have problems
-    void setBufferSize(int bufSize)
-    {
-        bufferSize = bufSize;
-    }
-    
-    float freqCalc(float zeroXings)
-    {
-        return ( zeroXings * (sampleRate / (float)bufferSize) * 0.5f );
-    }
-    
-    float freqCalcAlt(float cycleLength)
+    /// Takes the cycleLength in and returns the current frequency
+    float freqCalc(float cycleLength)
     {
         return sampleRate / cycleLength;
     }
     
 private:
     float sampleRate;
-    int bufferSize;
 };

@@ -114,7 +114,6 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     
     // Sets frequency detection classes buffer size
     zeroXing.setBuffer(frequencyBufferSize);
-    freqCalc.setBufferSize(frequencyBufferSize);
     
     
 
@@ -176,7 +175,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         float clippedSample = waveClipper.hardClip(filteredSample);
 
         float cycleLenght = zeroXing.process(clippedSample);
-        freq = freqCalc.freqCalcAlt(cycleLenght);
+        freq = freqCalc.freqCalc(cycleLenght);
         
         transientTracker.transientDetect(filteredSample);
         
