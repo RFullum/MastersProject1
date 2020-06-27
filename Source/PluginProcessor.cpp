@@ -110,7 +110,7 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     freqCalc.setSampleRate(sampleRate);
     
     // Sets threshold for noiseGate
-    noiseGate.setThreshold(0.3f);
+    noiseGate.setThreshold(0.1f);
     
     // Sets frequency detection classes buffer size
     zeroXing.setBufferAlt(sampleRate);

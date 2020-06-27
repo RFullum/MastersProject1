@@ -172,7 +172,7 @@ private:
     int writeHeadPos = 0;
     int crossingCount = 0;
     
-    int cycleLengthsSize = 10;
+    int cycleLengthsSize = 5;
     int cycleLengthsCount = 0;
     float* cycleLengths = new float[cycleLengthsSize];
     

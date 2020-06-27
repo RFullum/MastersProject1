@@ -57,7 +57,7 @@ private:
     IIRFilter lpOnePole;
     
     float hpfCutoff = 15.0f;
-    float lpfCutoff = 1000.0f;
+    float lpfCutoff = 150.0f;
     
     float sampleRate;
 };
