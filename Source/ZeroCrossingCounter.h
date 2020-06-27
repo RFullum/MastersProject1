@@ -4,6 +4,12 @@
     ZeroCrossingCounter.h
     Created: 16 Jun 2020 3:41:22pm
     Author:  Robert Fullum
+ 
+    This class writes incoming values to a buffer and counts zero crossings.
+    It determines the wavelength of the incoming waves by comparing writehead
+    positions of the first and third zero crossing. These wavelengths are stored
+    to a wrapped pointer array and averaged, replacing the oldest with the newest
+    wavelength. 
 
   ==============================================================================
 */
@@ -14,7 +20,7 @@ class ZeroXing
 {
 public:
     /**
-     Constructor - Takes in size of buffer. Creates buffer and sets buffer to all 0.0f
+     Constructor
      */
     ZeroXing()
     {
@@ -26,6 +32,10 @@ public:
     {
         delete[] crossingBuffer;
     }
+    
+    //
+    // CHANGE THE WAY BUFFER SIZE IS SET UP PER YOUR NOTES
+    //
     
     /// Sets crossingBufferSize and creates crossingBuffer pointer of said size, initializing values to 0.0f
     void setBuffer(int bufferSize)
@@ -40,29 +50,16 @@ public:
     }
     
     /**
-     Takes argument of current sample in from WaveClipper. Writes to buffer,
-     and returns number of zero crossings in said buffer.
+     Takes argument of current sample in from WaveClipper. returns the average wavelength being played
      */
     float process(float sampleIn)
     {
         writeToBuffer(sampleIn);
-        return countZeroXings();
-    }
-    
-    float processAlt(float sampleIn)
-    {
-        writeToBufferAlt(sampleIn);
         return averageCycleLength();
     }
     
 private:
-    /// Writes incomming samples to buffer, wrapped to buffer size
-    void writeToBuffer(float sampleIn)
-    {
-        crossingBuffer[writeHeadPos] = sampleIn;
-        writeHeadPos++;
-        writeHeadPos %= crossingBufferSize;
-    }
+
     
 //
 //
@@ -76,7 +73,7 @@ private:
      position. Then it stores that cycle length into the pointer of cycle lengths. Then resets writeHeadPos and
      crossingCount to 0.
      */
-    void writeToBufferAlt(float sampleIn)
+    void writeToBuffer(float sampleIn)
     {
         float currentSample;
         float previousSample;
@@ -137,32 +134,6 @@ private:
         
         return sumCycleLength / (float)cycleLengthsSize;
     }
-    
-    /**
-     */
-    float countZeroXings()
-    {
-        int crossingCount = 0;
-        float currentSample;
-        float previousSample;
-        
-        for (int i=0; i<crossingBufferSize; i++)
-        {
-            int previousSampleIndex = i - 1;
-            
-            while (previousSampleIndex < 0)
-                previousSampleIndex += crossingBufferSize;
-            
-            currentSample = crossingBuffer[i];
-            previousSample = crossingBuffer[previousSampleIndex];
-            
-            if (currentSample != previousSample)
-            crossingCount++;
-        }
-        
-        return crossingCount;
-    }
-    
     
     // Member Variables
     int crossingBufferSize;

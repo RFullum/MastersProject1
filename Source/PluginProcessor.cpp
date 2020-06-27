@@ -175,9 +175,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         float filteredSample = bandLimiter.process(gatedSample);
         float clippedSample = waveClipper.hardClip(filteredSample);
 
-        //float zeroCrossings = zeroXing.process(clippedSample);
-        //freq = freqCalc.freqCalc(zeroCrossings);
-        float cycleLenght = zeroXing.processAlt(clippedSample);
+        float cycleLenght = zeroXing.process(clippedSample);
         freq = freqCalc.freqCalcAlt(cycleLenght);
         
         transientTracker.transientDetect(filteredSample);
