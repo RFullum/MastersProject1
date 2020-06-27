@@ -113,7 +113,7 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     noiseGate.setThreshold(0.3f);
     
     // Sets frequency detection classes buffer size
-    zeroXing.setBuffer(frequencyBufferSize);
+    zeroXing.setBufferAlt(sampleRate);
     
     
 

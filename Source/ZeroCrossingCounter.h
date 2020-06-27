@@ -33,20 +33,20 @@ public:
         delete[] crossingBuffer;
     }
     
-    //
-    // CHANGE THE WAY BUFFER SIZE IS SET UP PER YOUR NOTES
-    //
-    
-    /// Sets crossingBufferSize and creates crossingBuffer pointer of said size, initializing values to 0.0f
-    void setBuffer(int bufferSize)
+    void setBufferAlt(float SR)
     {
-        crossingBufferSize = bufferSize;
+        sampleRate = SR;
+        
+        float minSamples = frequencyFloorLength();
+        crossingBufferSize = (int)setBufferSize(minSamples);
         crossingBuffer = new float[crossingBufferSize];
+        std::cout << "\n\nSR " << sampleRate << "\nbufSiz " << crossingBufferSize << "\n\n";
         
         for (int i=0; i<crossingBufferSize; i++)
         {
             crossingBuffer[i] = 0.0f;
         }
+        
     }
     
     /**
@@ -59,6 +59,36 @@ public:
     }
     
 private:
+    //
+    //
+    // STILL NOT ACCURATE BELOW C-ish ~65Hz
+    //
+    //
+    /**
+     Determines minimum number of samples needed for buffer size based on sample rate and
+     frequency floor. Buffer must be large enough to accomodate one full cycle plus another half cycle.
+     */
+    float frequencyFloorLength()
+    {
+        float cycleLength = sampleRate / frequencyFloor;
+        
+        return cycleLength * 2.0f; // + ( cycleLength * 0.5f );
+    }
+    
+    /**
+     Sets buffer size to be least great power of 2 that is greater than the minimum length for the buffer in samples
+     */
+    float setBufferSize(float minLength)
+    {
+        int power = 1;
+        
+        while ( pow(2.0, power) < minLength)
+        {
+            power++;
+        }
+        
+        return pow(2.0, power);
+    }
 
     
 //
@@ -141,6 +171,7 @@ private:
     
     int writeHeadPos = 0;
     int crossingCount = 0;
+    
     int cycleLengthsSize = 10;
     int cycleLengthsCount = 0;
     float* cycleLengths = new float[cycleLengthsSize];
@@ -148,4 +179,6 @@ private:
     int firstCrossing = 0;
     int thirdCrossing = 0;
     
+    float sampleRate;
+    float frequencyFloor = 20.0f;
 };
