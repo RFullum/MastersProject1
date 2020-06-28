@@ -33,7 +33,7 @@ public:
     /// sets gate threshold 0.0f - 1.0f;
     void setThreshold(float thresh)
     {
-        threshold = thresh;
+        thresholdLevel = thresh;
     }
     
     /**
@@ -43,34 +43,52 @@ public:
     float processGate(float sampleIn)
     {
         float amplitudeValues = 0.0f;
-        float averageAmplitude;
+        float averageAmplitude = 0.0f;
         float sampleOut = 0.0f;
         
         writeToBuffer(sampleIn);
         
         for (int i=0; i<gateBufferSize; i++)
         {
+            //std::cout << "sampleVal " << gateBuffer[i] << "\n";
             amplitudeValues += abs(gateBuffer[i]);
         }
         
         averageAmplitude = amplitudeValues / (float)gateBufferSize;
+        //std::cout << "avgAmp " << averageAmplitude << "\n";
         
-        if (averageAmplitude > threshold)
+        if (averageAmplitude > thresholdLevel)
         {
-            sampleOut = sampleIn;
-        }
-        else if (silenceCounter < silenceThreshold)
-        {
-            silenceCounter++;
+            gateActive = false;
             sampleOut = sampleIn;
         }
         else
         {
-            silenceCounter = 0;
-            sampleOut = 0.0f;
+            if (silenceCounter < silenceThresholdLength)
+            {
+                gateActive = false;
+                silenceCounter++;
+                sampleOut = sampleIn;
+            }
+            else
+            {
+                gateActive = true;
+                silenceCounter = 0;
+                sampleOut = 0.0f;
+            }
         }
         
+        
         return sampleOut;
+    }
+    
+    /**
+     Returns state of gate as bool: True = Gate is active and no audio is output. False = Gate is off and audio
+     is thruput.
+     */
+    bool currentGateState()
+    {
+        return gateActive;
     }
     
 private:
@@ -84,11 +102,12 @@ private:
     
     // Member Variables
     int gateBufferSize = 1024;
-    
     float* gateBuffer = new float[gateBufferSize];
     
     int writeHeadPos = 0;
     int silenceCounter = 0;
-    int silenceThreshold = 1024;
-    float threshold;
+    int silenceThresholdLength = 512;
+    float thresholdLevel;
+    
+    bool gateActive = true;
 };

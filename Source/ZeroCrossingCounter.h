@@ -33,7 +33,7 @@ public:
         delete[] crossingBuffer;
     }
     
-    void setBufferAlt(float SR)
+    void setBuffer(float SR)
     {
         sampleRate = SR;
         
@@ -72,7 +72,7 @@ private:
     {
         float cycleLength = sampleRate / frequencyFloor;
         
-        return cycleLength * 2.0f; // + ( cycleLength * 0.5f );
+        return cycleLength + ( cycleLength * 0.5f );
     }
     
     /**
@@ -125,19 +125,19 @@ private:
                 crossingCount++;
                 if (crossingCount == 1)
                     firstCrossing = writeHeadPos;
-                else if (crossingCount == 3)
-                    thirdCrossing = writeHeadPos;
+                else if (crossingCount == 2)
+                    secondCrossing = writeHeadPos;
             }
         }
         //std::cout << "first " << firstCrossing << " third " << thirdCrossing << "\n";
-        if (crossingCount < 3)
+        if (crossingCount < 2)
         {
             writeHeadPos++;
             writeHeadPos %= crossingBufferSize;
         }
         else
         {
-            cycleLengths[cycleLengthsCount] = thirdCrossing - firstCrossing;
+            cycleLengths[cycleLengthsCount] = ( secondCrossing - firstCrossing ) * 2.0f;
             
             cycleLengthsCount++;
             cycleLengthsCount %= cycleLengthsSize;
@@ -177,7 +177,7 @@ private:
     float* cycleLengths = new float[cycleLengthsSize];
     
     int firstCrossing = 0;
-    int thirdCrossing = 0;
+    int secondCrossing = 0;
     
     float sampleRate;
     float frequencyFloor = 20.0f;

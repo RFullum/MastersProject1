@@ -110,10 +110,10 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     freqCalc.setSampleRate(sampleRate);
     
     // Sets threshold for noiseGate
-    noiseGate.setThreshold(0.1f);
+    noiseGate.setThreshold(0.3f);
     
     // Sets frequency detection classes buffer size
-    zeroXing.setBufferAlt(sampleRate);
+    zeroXing.setBuffer(sampleRate);
     
     
 
@@ -161,7 +161,8 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     int numSamples = buffer.getNumSamples();
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getWritePointer(1);
-    
+    buffer.applyGain(4.25f);
+    std::cout << "rms " << buffer.getRMSLevel(0, 0, numSamples) << "\n";
     
     
     // DSP!
@@ -174,10 +175,19 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         float filteredSample = bandLimiter.process(gatedSample);
         float clippedSample = waveClipper.hardClip(filteredSample);
 
-        float cycleLenght = zeroXing.process(clippedSample);
-        freq = freqCalc.freqCalc(cycleLenght);
+        // float cycleLenght = zeroXing.process(clippedSample);
+        // freq = freqCalc.freqCalc(cycleLenght);
+        if (noiseGate.currentGateState() == true)
+        {
+            freq = 0.0f;
+        }
+        else
+        {
+            float cycleLenght = zeroXing.process(clippedSample);
+            freq = freqCalc.freqCalc(cycleLenght);
+        }
         
-        transientTracker.transientDetect(filteredSample);
+        //transientTracker.transientDetect(filteredSample);
         
         
         sampleL = filteredSample;
@@ -189,7 +199,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         
     }
     
-    std::cout << "freq " << freq << "\n";
+    //std::cout << "freq " << freq << " gate " << noiseGate.currentGateState() << "\n";
     //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
 }
 
