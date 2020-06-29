@@ -19,6 +19,8 @@
             file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/FrequencyCalculation.h"/>
       <FILE id="aHZ5hw" name="TransientTracker.h" compile="0" resource="0"
             file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/TransientTracker.h"/>
+      <FILE id="GGqOQi" name="FrequencyToMidi.h" compile="0" resource="0"
+            file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/FrequencyToMidi.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

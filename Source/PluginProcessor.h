@@ -17,6 +17,7 @@
 #include "ZeroCrossingCounter.h"
 #include "FrequencyCalculation.h"
 #include "TransientTracker.h"
+#include "FrequencyToMidi.h"
 
 //==============================================================================
 /**
@@ -69,6 +70,7 @@ private:
     ZeroXing zeroXing;
     FrequencyCalculation freqCalc;
     TransientTracker transientTracker;
+    FrequencyToMidi frequencyToMidi;
     
     float freq; // Frequency derived by zero crossing calculation
     
