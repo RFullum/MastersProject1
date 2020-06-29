@@ -97,7 +97,7 @@ private:
     
     // Member Variables
     int silenceCounter = 0;
-    int silenceThresholdLength = 128;
+    int silenceThresholdLength = 1024;
     
     float thresholdLevel;
     float currentLevel;
