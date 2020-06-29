@@ -203,8 +203,9 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         rightChannel[i] = sampleR;
         
     }
+    gateState = noiseGate.currentGateState();
     frequencyToMidi.getMidiFromFreq(freq);
-    std::cout << "velocity " << midiInfo.getVelocity(currentLevel) << "\n";
+    
     //midiMessages.addEvent(<#const MidiMessage &midiMessage#>, <#int sampleNumber#>)
     //std::cout << "freq " << freq << " gate " << noiseGate.currentGateState() << "\n";
     //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";

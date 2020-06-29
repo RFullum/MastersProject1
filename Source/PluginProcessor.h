@@ -78,6 +78,8 @@ private:
     float freq; // Frequency derived by zero crossing calculation
     float currentLevel;
     
+    bool gateState;
+    
     // Noise Gate
     std::atomic<float>* gateThreshold;
     
