@@ -110,7 +110,7 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     freqCalc.setSampleRate(sampleRate);
     
     // Sets threshold for noiseGate
-    noiseGate.setThreshold(0.3f);
+    noiseGate.setThreshold(0.07f);
     
     // Sets frequency detection classes buffer size
     zeroXing.setBuffer(sampleRate);
@@ -162,7 +162,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     auto* leftChannel = buffer.getWritePointer(0);
     auto* rightChannel = buffer.getWritePointer(1);
     buffer.applyGain(4.25f);
-    std::cout << "rms " << buffer.getRMSLevel(0, 0, numSamples) << "\n";
+    noiseGate.levelIn(buffer.getRMSLevel(0, 0, numSamples));
     
     
     // DSP!
@@ -199,7 +199,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         
     }
     
-    //std::cout << "freq " << freq << " gate " << noiseGate.currentGateState() << "\n";
+    std::cout << "freq " << freq << " gate " << noiseGate.currentGateState() << "\n";
     //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
 }
 
