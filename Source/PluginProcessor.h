@@ -18,6 +18,7 @@
 #include "FrequencyCalculation.h"
 #include "TransientTracker.h"
 #include "FrequencyToMidi.h"
+#include "MidiDataCalculations.h"
 
 //==============================================================================
 /**
@@ -71,8 +72,11 @@ private:
     FrequencyCalculation freqCalc;
     TransientTracker transientTracker;
     FrequencyToMidi frequencyToMidi;
+    MidiDataCalculations midiInfo;
+    
     
     float freq; // Frequency derived by zero crossing calculation
+    float currentLevel;
     
     // Noise Gate
     std::atomic<float>* gateThreshold;

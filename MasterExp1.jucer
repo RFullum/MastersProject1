@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="QdJUqs" name="MasterExp1" projectType="audioplug" jucerVersion="5.4.7">
+<JUCERPROJECT id="QdJUqs" name="MasterExp1" projectType="audioplug" jucerVersion="5.4.7"
+              pluginCharacteristicsValue="pluginProducesMidiOut">
   <MAINGROUP id="FsTvjI" name="MasterExp1">
     <GROUP id="{064EEB9B-8B74-62BB-C2CD-27CDC045658E}" name="Source">
       <FILE id="auRbEK" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -21,6 +22,8 @@
             file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/TransientTracker.h"/>
       <FILE id="GGqOQi" name="FrequencyToMidi.h" compile="0" resource="0"
             file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/FrequencyToMidi.h"/>
+      <FILE id="m9QmUW" name="MidiDataCalculations.h" compile="0" resource="0"
+            file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/MidiDataCalculations.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
