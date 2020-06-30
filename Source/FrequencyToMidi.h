@@ -25,7 +25,7 @@ private:
     {
         float conversionNum = log( frequency / 440.0f ) / log( 2 ) * 12 + 69;
         midiNoteNumber = roundToInt(conversionNum);
-        std::cout << "numFloat " << conversionNum << " num " << midiNoteNumber << "\n";
+        //std::cout << "numFloat " << conversionNum << " num " << midiNoteNumber << "\n";
     }
     int midiNoteNumber;
     float frequency;

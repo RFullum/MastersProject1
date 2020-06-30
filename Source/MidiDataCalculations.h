@@ -24,18 +24,26 @@ public:
         velocity = jmap(level, 0.0f, 1.0f, 0.0f, 127.0f);
     }
     
-    void setNoteOnOff(int noteNumber)
+    /// Returns velocity as a float from 0.0 to 127.0
+    float getVelocity()
+    {
+        return velocity;
+    }
+    
+    bool setNoteTrigger(int noteNumber)
     {
         currentNote = noteNumber;
         
-        if (currentNote == 0)
+        if (currentNote == previousNote)
         {
-            noteOn = false;
+            newNote = false;
         }
-        else if (currentNote == previousNote)
+        else
         {
-            noteOn = false;
+            newNote = true;
         }
+        
+        return newNote;
     }
     
 private:
@@ -43,7 +51,7 @@ private:
     // Member Variables
     
     // Note On/Off variables
-    bool noteOn;
+    bool newNote = false;
     int currentNote;
     int previousNote = 0;
     

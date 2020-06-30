@@ -169,7 +169,6 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     
     noiseGate.levelIn(currentLevel);
     
-    
     // DSP!
     for (int i=0; i<numSamples; i++)
     {
@@ -180,8 +179,6 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         float filteredSample = bandLimiter.process(gatedSample);
         float clippedSample = waveClipper.hardClip(filteredSample);
 
-        // float cycleLenght = zeroXing.process(clippedSample);
-        // freq = freqCalc.freqCalc(cycleLenght);
         if (noiseGate.currentGateState() == true)
         {
             freq = 0.0f;
@@ -190,6 +187,24 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         {
             float cycleLenght = zeroXing.process(clippedSample);
             freq = freqCalc.freqCalc(cycleLenght);
+        }
+        
+        currentMidiNoteNumber = frequencyToMidi.getMidiFromFreq(freq);
+        triggerNewNote = midiInfo.setNoteTrigger(currentMidiNoteNumber);
+        
+        if (triggerNewNote)
+        {
+            midiMessages.addEvent(MidiMessage::noteOn(midiChannel, 0, 0.0f), i);
+            
+            
+            if (currentMidiNoteNumber == 0)
+            {
+                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, 0, 0.0f), i);
+            }
+            else
+            {
+                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), i);
+            }
         }
         
         //transientTracker.transientDetect(filteredSample);
@@ -203,8 +218,12 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         rightChannel[i] = sampleR;
         
     }
-    gateState = noiseGate.currentGateState();
-    frequencyToMidi.getMidiFromFreq(freq);
+    
+    //gateState = noiseGate.currentGateState();
+    
+    
+    
+    //noteVelocity = midiInfo.getVelocity();
     
     //midiMessages.addEvent(<#const MidiMessage &midiMessage#>, <#int sampleNumber#>)
     //std::cout << "freq " << freq << " gate " << noiseGate.currentGateState() << "\n";

@@ -77,6 +77,10 @@ private:
     
     float freq; // Frequency derived by zero crossing calculation
     float currentLevel;
+    int currentMidiNoteNumber;
+    int midiChannel = 1;
+    float noteVelocity;
+    bool triggerNewNote = false;
     
     bool gateState;
     
