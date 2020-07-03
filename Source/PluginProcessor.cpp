@@ -180,7 +180,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         
         float gatedSample = noiseGate.processGate(leftChannel[i]);
         float filteredSample = bandLimiter.process(gatedSample);
-        float clippedSample = waveClipper.hardClip(filteredSample);
+        float clippedSample = waveClipper.clipSignal(filteredSample);
 
         if (noiseGate.currentGateState() == true)
         {
