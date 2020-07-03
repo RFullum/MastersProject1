@@ -169,6 +169,9 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     
     noiseGate.levelIn(currentLevel);
     
+    midiInfo.setVelocity(currentLevel);
+    noteVelocity = midiInfo.getVelocity();
+    
     // DSP!
     for (int i=0; i<numSamples; i++)
     {
@@ -196,10 +199,9 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         {
             midiMessages.addEvent(MidiMessage::noteOn(midiChannel, 0, 0.0f), i);
             
-            
             if (currentMidiNoteNumber == 0)
             {
-                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, 0, 0.0f), i);
+                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, 0, 0.0f), i + 1);
             }
             else
             {
@@ -218,15 +220,8 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         rightChannel[i] = sampleR;
         
     }
+    std::cout << "MidiNoteNumber " << currentMidiNoteNumber << "\n";
     
-    //gateState = noiseGate.currentGateState();
-    
-    
-    
-    //noteVelocity = midiInfo.getVelocity();
-    
-    //midiMessages.addEvent(<#const MidiMessage &midiMessage#>, <#int sampleNumber#>)
-    //std::cout << "freq " << freq << " gate " << noiseGate.currentGateState() << "\n";
     //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
 }
 

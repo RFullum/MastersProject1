@@ -19,9 +19,10 @@ public:
      */
     void setVelocity(float levelIn)
     {
-        float level = std::max(0.0f, std::min(levelIn, 1.0f));  // clamps from 0.0 to 1.0
+        //float level = std::max(0.0f, std::min(levelIn, 1.0f));  // clamps from 0.0 to 1.0
         
-        velocity = jmap(level, 0.0f, 1.0f, 0.0f, 127.0f);
+        //velocity = jmap(level, 0.0f, 1.0f, 0.0f, 127.0f);
+        velocity = std::max(0.0f, std::min(levelIn, 1.0f));  // clamps from 0.0 to 1.0
     }
     
     /// Returns velocity as a float from 0.0 to 127.0
