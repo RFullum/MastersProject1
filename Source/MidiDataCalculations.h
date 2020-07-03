@@ -44,7 +44,14 @@ public:
             newNote = true;
         }
         
+        previousNote = currentNote;
+
         return newNote;
+    }
+    
+    int getPreviousNoteNumber()
+    {
+        return previousNote;
     }
     
 private:

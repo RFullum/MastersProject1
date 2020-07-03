@@ -170,7 +170,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     noiseGate.levelIn(currentLevel);
     
     midiInfo.setVelocity(currentLevel);
-    noteVelocity = midiInfo.getVelocity();
+    
     
     // DSP!
     for (int i=0; i<numSamples; i++)
@@ -192,23 +192,42 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
             freq = freqCalc.freqCalc(cycleLenght);
         }
         
+        
         currentMidiNoteNumber = frequencyToMidi.getMidiFromFreq(freq);
         triggerNewNote = midiInfo.setNoteTrigger(currentMidiNoteNumber);
+        previousMidiNoteNumber = midiInfo.getPreviousNoteNumber();
+        noteVelocity = midiInfo.getVelocity();
         
         if (triggerNewNote)
         {
-            midiMessages.addEvent(MidiMessage::noteOn(midiChannel, 0, 0.0f), i);
-            
             if (currentMidiNoteNumber == 0)
             {
-                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, 0, 0.0f), i + 1);
+                for (int j=0; j<128; j++)
+                {
+                    midiMessages.addEvent(MidiMessage::noteOff(midiChannel, j), midiMessages.getLastEventTime() + 1);
+                }
+                
+                //std::cout << "crnt 0 addEvent: noteOff " << midiChannel << " " << previousMidiNoteNumber << " " << midiMessages.getLastEventTime() + 1 << "\n";
+            }
+            else if (previousMidiNoteNumber == 0 && currentMidiNoteNumber != 0)
+            {
+                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), midiMessages.getLastEventTime() + 1);
+                //std::cout << "prv 0 crnt X addEvent: noteOn " << midiChannel << " " << currentMidiNoteNumber << " " << noteVelocity << " " << midiMessages.getLastEventTime() + 1 << "\n";
+            }
+            else if (previousMidiNoteNumber != 0 && currentMidiNoteNumber != 0)
+            {
+                midiMessages.addEvent(MidiMessage::noteOff(midiChannel, previousMidiNoteNumber), midiMessages.getLastEventTime() + 1);
+                //std::cout << "prv X crnt Y addEvent: noteOff " << midiChannel << " " << previousMidiNoteNumber << " " << midiMessages.getLastEventTime() + 1 << "\n";
+                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), midiMessages.getLastEventTime() + 1);
+                //std::cout << "prv X crnt Y addEvent: noteOn " << midiChannel << " " << currentMidiNoteNumber << " " << noteVelocity << " " << midiMessages.getLastEventTime() + 1 << "\n";
             }
             else
             {
-                midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), i);
+                midiMessages.addEvent(MidiMessage::noteOff(midiChannel, currentMidiNoteNumber), midiMessages.getLastEventTime() + 1);
+                //std::cout << "other addEvent: noteOff " << midiChannel << " " << previousMidiNoteNumber << " " << midiMessages.getLastEventTime() + 1 << "\n";
             }
+            
         }
-        
         //transientTracker.transientDetect(filteredSample);
         
         
@@ -216,11 +235,13 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         sampleR = filteredSample;
         
         // Stereo out
-        leftChannel[i] = sampleL;
-        rightChannel[i] = sampleR;
+        leftChannel[i] = 0.0f;//sampleL;
+        rightChannel[i] = 0.0f;//sampleR;
         
     }
-    std::cout << "MidiNoteNumber " << currentMidiNoteNumber << "\n";
+    
+    //
+    //std::cout << "MidiNoteNumber " << currentMidiNoteNumber << "\n";
     
     //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
 }
