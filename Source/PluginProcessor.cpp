@@ -19,7 +19,7 @@ MasterExp1AudioProcessor::MasterExp1AudioProcessor()
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
                       #endif
-                       .withOutput ("Output", AudioChannelSet::stereo(), false)
+                       //.withOutput ("Output", AudioChannelSet::stereo(), false)
                      #endif
                        ),
 #endif
