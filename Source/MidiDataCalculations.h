@@ -60,7 +60,7 @@ private:
     
     // Note On/Off variables
     bool newNote = false;
-    int currentNote;
+    int currentNote = 0;
     int previousNote = 0;
     
     // velocity variables

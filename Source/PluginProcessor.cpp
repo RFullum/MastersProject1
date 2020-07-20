@@ -11,6 +11,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include "juce_serialport.h"
+
 //==============================================================================
 MasterExp1AudioProcessor::MasterExp1AudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
