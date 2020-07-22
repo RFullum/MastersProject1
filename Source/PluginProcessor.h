@@ -19,6 +19,8 @@
 #include "TransientTracker.h"
 #include "FrequencyToMidi.h"
 #include "MidiDataCalculations.h"
+#include "UDPConnection.h"
+
 
 //==============================================================================
 /**
@@ -87,6 +89,20 @@ private:
     
     // Noise Gate
     std::atomic<float>* gateThreshold;
+    
+    // UDP
+    UDPConnection udpConnectionGyroX;
+    UDPConnection udpConnectionGyroY;
+    UDPConnection udpConnectionGyroZ;
+    UDPConnection udpConnectionAccelX;
+    UDPConnection udpConnectionAccelY;
+    UDPConnection udpConnectionAccelZ;
+    int udpPortGyroX = 65013;
+    int udpPortGyroY = 65014;
+    int udpPortGyroZ = 65015;
+    int udpPortAccelX = 65016;
+    int udpPortAccelY = 65017;
+    int udpPortAccelZ = 65018;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MasterExp1AudioProcessor)

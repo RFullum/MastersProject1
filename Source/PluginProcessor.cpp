@@ -11,7 +11,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-#include "juce_serialport.h"
+
 
 //==============================================================================
 MasterExp1AudioProcessor::MasterExp1AudioProcessor()
@@ -117,7 +117,13 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     // Sets frequency detection classes buffer size
     zeroXing.setBuffer(sampleRate);
     
-    
+    // UDP
+    udpConnectionGyroX.udpPortConnect(udpPortGyroX);
+    udpConnectionGyroY.udpPortConnect(udpPortGyroY);
+    udpConnectionGyroZ.udpPortConnect(udpPortGyroZ);
+    udpConnectionAccelX.udpPortConnect(udpPortAccelX);
+    udpConnectionAccelY.udpPortConnect(udpPortAccelY);
+    udpConnectionAccelZ.udpPortConnect(udpPortAccelZ);
 
 }
 
@@ -173,6 +179,12 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     
     midiInfo.setVelocity(currentLevel);
     
+    udpConnectionGyroX.readArduinoStream();
+    udpConnectionGyroY.readArduinoStream();
+    udpConnectionGyroZ.readArduinoStream();
+    udpConnectionAccelX.readArduinoStream();
+    udpConnectionAccelY.readArduinoStream();
+    udpConnectionAccelZ.readArduinoStream();
     
     // DSP!
     for (int i=0; i<numSamples; i++)
