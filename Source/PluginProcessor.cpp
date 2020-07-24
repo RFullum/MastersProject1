@@ -179,12 +179,14 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     
     midiInfo.setVelocity(currentLevel);
     
+    /*
     udpConnectionGyroX.readArduinoStream();
     udpConnectionGyroY.readArduinoStream();
     udpConnectionGyroZ.readArduinoStream();
     udpConnectionAccelX.readArduinoStream();
     udpConnectionAccelY.readArduinoStream();
     udpConnectionAccelZ.readArduinoStream();
+    */
     
     // DSP!
     for (int i=0; i<numSamples; i++)
