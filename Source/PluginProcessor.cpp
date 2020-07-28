@@ -189,10 +189,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     
     // DSP!
     for (int i=0; i<numSamples; i++)
-    {
-        float sampleL = 0.0f;
-        float sampleR = 0.0f;
-        
+    {        
         float gatedSample = noiseGate.processGate(leftChannel[i]);
         float filteredSample = bandLimiter.process(gatedSample);
         float clippedSample = waveClipper.clipSignal(filteredSample);
@@ -208,11 +205,13 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         }
         
         
+        // MIDI Note Values
         currentMidiNoteNumber = frequencyToMidi.getMidiFromFreq(freq);
         triggerNewNote = midiInfo.setNoteTrigger(currentMidiNoteNumber);
         previousMidiNoteNumber = midiInfo.getPreviousNoteNumber();
         noteVelocity = midiInfo.getVelocity();
         
+        // MIDI Note On/Off Logic
         if (triggerNewNote)
         {
             if (currentMidiNoteNumber == 0)
@@ -251,8 +250,10 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
             }
             
         }
-
+    
     }
+    // End DSP Loop
+    
     
 }
 
