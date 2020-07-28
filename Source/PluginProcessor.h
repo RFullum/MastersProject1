@@ -76,16 +76,14 @@ private:
     FrequencyToMidi frequencyToMidi;
     MidiDataCalculations midiInfo;
     
-    
-    float freq; // Frequency derived by zero crossing calculation
-    float currentLevel;
+    // Variables
+    float freq;             // Frequency derived by zero crossing calculation
+    float currentLevel;     // Level of audio
     int currentMidiNoteNumber = 0;
     int previousMidiNoteNumber = 0;
-    int midiChannel = 1;
+    int midiChannel = 1;    // 1 for eas of use. Can make selectable parameter
     float noteVelocity;
     bool triggerNewNote = false;
-    
-    bool gateState;
     
     // Noise Gate
     std::atomic<float>* gateThreshold;
