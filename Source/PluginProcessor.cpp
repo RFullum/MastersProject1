@@ -266,7 +266,7 @@ bool MasterExp1AudioProcessor::hasEditor() const
 
 AudioProcessorEditor* MasterExp1AudioProcessor::createEditor()
 {
-    return new MasterExp1AudioProcessorEditor (*this);
+    return new GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
