@@ -66,13 +66,13 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    // class Instances
     AudioProcessorValueTreeState parameters;
     WaveClipper waveClipper;
     NoiseGate noiseGate;
     BandLimiter bandLimiter;
     ZeroXing zeroXing;
     FrequencyCalculation freqCalc;
-    TransientTracker transientTracker;
     FrequencyToMidi frequencyToMidi;
     MidiDataCalculations midiInfo;
     
