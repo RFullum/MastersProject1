@@ -117,7 +117,7 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     // Sets frequency detection classes buffer size
     zeroXing.setBuffer(sampleRate);
     
-    // UDP
+    // UDP Setup: connects to UDP Ports for each instance
     udpConnectionGyroX.udpPortConnect(udpPortGyroX);
     udpConnectionGyroY.udpPortConnect(udpPortGyroY);
     udpConnectionGyroZ.udpPortConnect(udpPortGyroZ);
@@ -179,14 +179,13 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     
     midiInfo.setVelocity(currentLevel);
     
-    /*
+    // Read XYZ values from Arduio via UDP
     udpConnectionGyroX.readArduinoStream();
     udpConnectionGyroY.readArduinoStream();
     udpConnectionGyroZ.readArduinoStream();
     udpConnectionAccelX.readArduinoStream();
     udpConnectionAccelY.readArduinoStream();
     udpConnectionAccelZ.readArduinoStream();
-    */
     
     // DSP!
     for (int i=0; i<numSamples; i++)
@@ -218,48 +217,43 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         {
             if (currentMidiNoteNumber == 0)
             {
+                /*
                 for (int j=0; j<128; j++)
                 {
                     midiMessages.addEvent(MidiMessage::noteOff(midiChannel, j), midiMessages.getLastEventTime() + 1);
                 }
-                
+                */
                 //std::cout << "crnt 0 addEvent: noteOff " << midiChannel << " " << previousMidiNoteNumber << " " << midiMessages.getLastEventTime() + 1 << "\n";
+                midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
             }
             else if (previousMidiNoteNumber == 0 && currentMidiNoteNumber != 0)
             {
+                midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
+                
                 midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), midiMessages.getLastEventTime() + 1);
                 //std::cout << "prv 0 crnt X addEvent: noteOn " << midiChannel << " " << currentMidiNoteNumber << " " << noteVelocity << " " << midiMessages.getLastEventTime() + 1 << "\n";
             }
             else if (previousMidiNoteNumber != 0 && currentMidiNoteNumber != 0)
             {
-                midiMessages.addEvent(MidiMessage::noteOff(midiChannel, previousMidiNoteNumber), midiMessages.getLastEventTime() + 1);
+                
+                //midiMessages.addEvent(MidiMessage::noteOff(midiChannel, previousMidiNoteNumber), midiMessages.getLastEventTime() + 1);
                 //std::cout << "prv X crnt Y addEvent: noteOff " << midiChannel << " " << previousMidiNoteNumber << " " << midiMessages.getLastEventTime() + 1 << "\n";
+                midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
+                
                 midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), midiMessages.getLastEventTime() + 1);
                 //std::cout << "prv X crnt Y addEvent: noteOn " << midiChannel << " " << currentMidiNoteNumber << " " << noteVelocity << " " << midiMessages.getLastEventTime() + 1 << "\n";
             }
             else
             {
-                midiMessages.addEvent(MidiMessage::noteOff(midiChannel, currentMidiNoteNumber), midiMessages.getLastEventTime() + 1);
+                midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
+                //midiMessages.addEvent(MidiMessage::noteOff(midiChannel, currentMidiNoteNumber), midiMessages.getLastEventTime() + 1);
                 //std::cout << "other addEvent: noteOff " << midiChannel << " " << previousMidiNoteNumber << " " << midiMessages.getLastEventTime() + 1 << "\n";
             }
             
         }
-        //transientTracker.transientDetect(filteredSample);
-        
-        
-        sampleL = filteredSample;
-        sampleR = filteredSample;
-        
-        // Stereo out
-        leftChannel[i] = 0.0f;//sampleL;
-        rightChannel[i] = 0.0f;//sampleR;
-        
+
     }
     
-    //
-    //std::cout << "MidiNoteNumber " << currentMidiNoteNumber << "\n";
-    
-    //std::cout << "transient? " << transientTracker.transientDetect(filteredSample) << "\n";
 }
 
 //==============================================================================

@@ -40,7 +40,7 @@ public:
         float minSamples = frequencyFloorLength();
         crossingBufferSize = (int)setBufferSize(minSamples);
         crossingBuffer = new float[crossingBufferSize];
-        std::cout << "\n\nSR " << sampleRate << "\nbufSiz " << crossingBufferSize << "\n\n";
+        //std::cout << "\n\nSR " << sampleRate << "\nbufSiz " << crossingBufferSize << "\n\n";
         
         for (int i=0; i<crossingBufferSize; i++)
         {
