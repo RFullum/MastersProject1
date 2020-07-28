@@ -203,10 +203,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
             float cycleLenght = zeroXing.process(clippedSample);
             freq = freqCalc.freqCalc(cycleLenght);
         }
-        
-        
-        
-    
+
     }   // END DSP LOOP
     
     
@@ -255,6 +252,9 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         }
         
     }   // END MIDI NOTE ON/OFF LOGIC
+    
+    // MIDI CC Value
+    midiMessages.addEvent(MidiMessage::controllerEvent(1, 1, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
     
 }   // END PROCESS BLOCK
 
