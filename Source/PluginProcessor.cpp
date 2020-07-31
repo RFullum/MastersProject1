@@ -28,13 +28,15 @@ MasterExp1AudioProcessor::MasterExp1AudioProcessor()
 parameters(*this, nullptr, "ParameterTree", {
 // id, description, min, max, default
 // Main Osc Params
-    std::make_unique<AudioParameterFloat>("gate_threshold", "Gate Threshold", 0.0f, 1.0f, 0.0f)
+    std::make_unique<AudioParameterFloat>("input_gain", "Input Gain", 0.1f, 10.0f, 4.25f),
+    std::make_unique<AudioParameterFloat>("gate_threshold", "Gate Threshold", 0.0f, 1.0f, 0.01f)
 })
 
 
 {
     // Gate Param Construct
-    gateThreshold = parameters.getRawParameterValue("gate_threshold");
+    inputGainParam = parameters.getRawParameterValue("input_gain");
+    gateThresholdParam = parameters.getRawParameterValue("gate_threshold");
     
 }
 
@@ -111,9 +113,6 @@ void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     bandLimiter.setSampleRate(sampleRate);
     freqCalc.setSampleRate(sampleRate);
     
-    // Sets threshold for noiseGate
-    noiseGate.setThreshold(0.01f);
-    
     // Sets frequency detection classes buffer size
     zeroXing.setBuffer(sampleRate);
     
@@ -166,17 +165,23 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    // Clears midi buffer
     midiMessages.clear();
-
+    
+    // Audio input to buffer
     int numSamples = buffer.getNumSamples();
     auto* leftChannel = buffer.getWritePointer(0);
-    auto* rightChannel = buffer.getWritePointer(1);
+    // auto* rightChannel = buffer.getWritePointer(1);
     
-    buffer.applyGain(4.25f);
+    // Audio Gain
+    buffer.applyGain(*inputGainParam);
     currentLevel = buffer.getRMSLevel(0, 0, numSamples);
     
+    // Noise Gate Values
+    noiseGate.setThreshold(*gateThresholdParam);
     noiseGate.levelIn(currentLevel);
     
+    // Level to Midi Velocity
     midiInfo.setVelocity(currentLevel);
     
     // Read XYZ values from Arduio via UDP

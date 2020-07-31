@@ -85,8 +85,9 @@ private:
     float noteVelocity;
     bool triggerNewNote = false;
     
-    // Noise Gate
-    std::atomic<float>* gateThreshold;
+    // Parameter tree variables
+    std::atomic<float>* gateThresholdParam;
+    std::atomic<float>* inputGainParam;
     
     // UDP
     UDPConnection udpConnectionGyroX;
