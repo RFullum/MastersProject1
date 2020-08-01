@@ -79,15 +79,39 @@ private:
     // Variables
     float freq;             // Frequency derived by zero crossing calculation
     float currentLevel;     // Level of audio
+    float noteVelocity;
+    
     int currentMidiNoteNumber = 0;
     int previousMidiNoteNumber = 0;
     int midiChannel = 1;    // 1 for eas of use. Can make selectable parameter
-    float noteVelocity;
+    
     bool triggerNewNote = false;
+    
+    bool gyroXOnOff = false;
+    bool gyroYOnOff = false;
+    bool gyroZOnOff = false;
+    
+    bool accelXOnOff = false;
+    bool accelYOnOff = false;
+    bool accelZOnOff = false;
     
     // Parameter tree variables
     std::atomic<float>* gateThresholdParam;
     std::atomic<float>* inputGainParam;
+    
+    std::atomic<float>* gyroXOnOffParameter;
+    std::atomic<float>* gyroYOnOffParameter;
+    std::atomic<float>* gyroZOnOffParameter;
+    std::atomic<float>* accelXOnOffParameter;
+    std::atomic<float>* accelYOnOffParameter;
+    std::atomic<float>* accelZOnOffParameter;
+    
+    std::atomic<float>* gyroXSoloParameter;
+    std::atomic<float>* gyroYSoloParameter;
+    std::atomic<float>* gyroZSoloParameter;
+    std::atomic<float>* accelXSoloParameter;
+    std::atomic<float>* accelYSoloParameter;
+    std::atomic<float>* accelZSoloParameter;
     
     // UDP
     UDPConnection udpConnectionGyroX;

@@ -25,18 +25,41 @@ MasterExp1AudioProcessor::MasterExp1AudioProcessor()
                      #endif
                        ),
 #endif
+
 parameters(*this, nullptr, "ParameterTree", {
+// ParameterFloats:
 // id, description, min, max, default
-// Main Osc Params
+//
+// ParameterChoices:
+// id, descript, choices (StringArray), default index of StringArray
+//
     std::make_unique<AudioParameterFloat>("input_gain", "Input Gain", 0.1f, 10.0f, 4.25f),
-    std::make_unique<AudioParameterFloat>("gate_threshold", "Gate Threshold", 0.0f, 1.0f, 0.01f)
+    std::make_unique<AudioParameterFloat>("gate_threshold", "Gate Threshold", 0.0f, 1.0f, 0.01f),
+    
+    //std::make_unique<AudioParameterChoice>("ccGyroX", "Gyro X CC Number", StringArray({}), 1)
+    
+    std::make_unique<AudioParameterChoice>("gyroXOnOff", "Gyro X", StringArray({ "Off", "On" }), 0 ),
+    std::make_unique<AudioParameterChoice>("gyroYOnOff", "Gyro Y", StringArray({ "Off", "On" }), 0 ),
+    std::make_unique<AudioParameterChoice>("gyroZOnOff", "Gyro Z", StringArray({ "Off", "On" }), 0 ),
+    
+    std::make_unique<AudioParameterChoice>("accelXOnOff", "Accel X", StringArray({ "Off", "On" }), 0 ),
+    std::make_unique<AudioParameterChoice>("accelYOnOff", "Accel Y", StringArray({ "Off", "On" }), 0 ),
+    std::make_unique<AudioParameterChoice>("accelZOnOff", "Accel Z", StringArray({ "Off", "On" }), 0 )
 })
 
 
 {
-    // Gate Param Construct
+    // Param Construct
     inputGainParam = parameters.getRawParameterValue("input_gain");
     gateThresholdParam = parameters.getRawParameterValue("gate_threshold");
+    
+    gyroXOnOffParameter = parameters.getRawParameterValue("gyroXOnOff");
+    gyroYOnOffParameter = parameters.getRawParameterValue("gyroYOnOff");
+    gyroZOnOffParameter = parameters.getRawParameterValue("gyroZOnOff");
+    
+    accelXOnOffParameter = parameters.getRawParameterValue("accelXOnOff");
+    accelYOnOffParameter = parameters.getRawParameterValue("accelYOnOff");
+    accelZOnOffParameter = parameters.getRawParameterValue("accelZOnOff");
     
 }
 
@@ -259,7 +282,44 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     }   // END MIDI NOTE ON/OFF LOGIC
     
     // MIDI CC Value
-    midiMessages.addEvent(MidiMessage::controllerEvent(1, 1, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+    gyroXOnOff = *gyroXOnOffParameter;
+    gyroYOnOff = *gyroYOnOffParameter;
+    gyroZOnOff = *gyroZOnOffParameter;
+    
+    accelXOnOff = *accelXOnOffParameter;
+    accelYOnOff = *accelYOnOffParameter;
+    accelZOnOff = *accelZOnOffParameter;
+    
+    if (gyroXOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 16, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
+    if (gyroYOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 17, udpConnectionGyroY.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
+    if (gyroZOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 18, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
+    if (accelXOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 80, udpConnectionAccelX.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
+    if (accelYOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 81, udpConnectionAccelY.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
+    if (accelZOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 82, udpConnectionAccelZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
     
 }   // END PROCESS BLOCK
 
