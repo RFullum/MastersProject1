@@ -38,13 +38,14 @@ parameters(*this, nullptr, "ParameterTree", {
     
     //std::make_unique<AudioParameterChoice>("ccGyroX", "Gyro X CC Number", StringArray({}), 1)
     
-    std::make_unique<AudioParameterChoice>("gyroXOnOff", "Gyro X", StringArray({ "Off", "On" }), 0 ),
-    std::make_unique<AudioParameterChoice>("gyroYOnOff", "Gyro Y", StringArray({ "Off", "On" }), 0 ),
-    std::make_unique<AudioParameterChoice>("gyroZOnOff", "Gyro Z", StringArray({ "Off", "On" }), 0 ),
-    
     std::make_unique<AudioParameterChoice>("accelXOnOff", "Accel X", StringArray({ "Off", "On" }), 0 ),
     std::make_unique<AudioParameterChoice>("accelYOnOff", "Accel Y", StringArray({ "Off", "On" }), 0 ),
-    std::make_unique<AudioParameterChoice>("accelZOnOff", "Accel Z", StringArray({ "Off", "On" }), 0 )
+    std::make_unique<AudioParameterChoice>("accelZOnOff", "Accel Z", StringArray({ "Off", "On" }), 0 ),
+    
+    std::make_unique<AudioParameterChoice>("gyroXOnOff", "Gyro X", StringArray({ "Off", "On" }), 0 ),
+    std::make_unique<AudioParameterChoice>("gyroYOnOff", "Gyro Y", StringArray({ "Off", "On" }), 0 ),
+    std::make_unique<AudioParameterChoice>("gyroZOnOff", "Gyro Z", StringArray({ "Off", "On" }), 0 )
+    
 })
 
 
@@ -53,13 +54,13 @@ parameters(*this, nullptr, "ParameterTree", {
     inputGainParam = parameters.getRawParameterValue("input_gain");
     gateThresholdParam = parameters.getRawParameterValue("gate_threshold");
     
-    gyroXOnOffParameter = parameters.getRawParameterValue("gyroXOnOff");
-    gyroYOnOffParameter = parameters.getRawParameterValue("gyroYOnOff");
-    gyroZOnOffParameter = parameters.getRawParameterValue("gyroZOnOff");
-    
     accelXOnOffParameter = parameters.getRawParameterValue("accelXOnOff");
     accelYOnOffParameter = parameters.getRawParameterValue("accelYOnOff");
     accelZOnOffParameter = parameters.getRawParameterValue("accelZOnOff");
+    
+    gyroXOnOffParameter = parameters.getRawParameterValue("gyroXOnOff");
+    gyroYOnOffParameter = parameters.getRawParameterValue("gyroYOnOff");
+    gyroZOnOffParameter = parameters.getRawParameterValue("gyroZOnOff");
     
 }
 
