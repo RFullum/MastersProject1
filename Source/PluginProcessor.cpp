@@ -38,13 +38,16 @@ parameters(*this, nullptr, "ParameterTree", {
     
     //std::make_unique<AudioParameterChoice>("ccGyroX", "Gyro X CC Number", StringArray({}), 1)
     
-    std::make_unique<AudioParameterChoice>("accelXOnOff", "Accel X", StringArray({ "Off", "On" }), 0 ),
-    std::make_unique<AudioParameterChoice>("accelYOnOff", "Accel Y", StringArray({ "Off", "On" }), 0 ),
-    std::make_unique<AudioParameterChoice>("accelZOnOff", "Accel Z", StringArray({ "Off", "On" }), 0 ),
+    std::make_unique<AudioParameterChoice>("accelXOnOff", "Accel X", StringArray({ "Off", "On" }), 0),
+    std::make_unique<AudioParameterChoice>("accelYOnOff", "Accel Y", StringArray({ "Off", "On" }), 0),
+    std::make_unique<AudioParameterChoice>("accelZOnOff", "Accel Z", StringArray({ "Off", "On" }), 0),
     
-    std::make_unique<AudioParameterChoice>("gyroXOnOff", "Gyro X", StringArray({ "Off", "On" }), 0 ),
-    std::make_unique<AudioParameterChoice>("gyroYOnOff", "Gyro Y", StringArray({ "Off", "On" }), 0 ),
-    std::make_unique<AudioParameterChoice>("gyroZOnOff", "Gyro Z", StringArray({ "Off", "On" }), 0 )
+    std::make_unique<AudioParameterChoice>("gyroXOnOff", "Gyro X", StringArray({ "Off", "On" }), 0),
+    std::make_unique<AudioParameterChoice>("gyroYOnOff", "Gyro Y", StringArray({ "Off", "On" }), 0),
+    std::make_unique<AudioParameterChoice>("gyroZOnOff", "Gyro Z", StringArray({ "Off", "On" }), 0),
+    
+    std::make_unique<AudioParameterChoice>("midiLearnFocus", "Midi Learn Focus", StringArray({ "none", "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z"}), 0)
+    
     
 })
 
@@ -61,6 +64,8 @@ parameters(*this, nullptr, "ParameterTree", {
     gyroXOnOffParameter = parameters.getRawParameterValue("gyroXOnOff");
     gyroYOnOffParameter = parameters.getRawParameterValue("gyroYOnOff");
     gyroZOnOffParameter = parameters.getRawParameterValue("gyroZOnOff");
+    
+    midiLearnFocusParameter = parameters.getRawParameterValue("midiLearnFocus");
     
 }
 
@@ -282,14 +287,70 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         
     }   // END MIDI NOTE ON/OFF LOGIC
     
+    //
     // MIDI CC Value
+    //
+    
+    // Get global on off value from parameter tree
+    accelXOnOff = *accelXOnOffParameter;
+    accelYOnOff = *accelYOnOffParameter;
+    accelZOnOff = *accelZOnOffParameter;
+    
     gyroXOnOff = *gyroXOnOffParameter;
     gyroYOnOff = *gyroYOnOffParameter;
     gyroZOnOff = *gyroZOnOffParameter;
     
-    accelXOnOff = *accelXOnOffParameter;
-    accelYOnOff = *accelYOnOffParameter;
-    accelZOnOff = *accelZOnOffParameter;
+    // Use Midi Learn Focus Parameter to solo individual values
+    // allowing Midi Learn to receive one value at a time
+    if (*midiLearnFocusParameter != 0)
+    {
+        if (*midiLearnFocusParameter == 1)
+        {
+            accelXOnOff = 1;
+            accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+        }
+        else if (*midiLearnFocusParameter == 2)
+        {
+            accelYOnOff = 1;
+            accelXOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+        }
+        else if (*midiLearnFocusParameter == 3)
+        {
+            accelZOnOff = 1;
+            accelXOnOff = accelYOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+        }
+        else if (*midiLearnFocusParameter == 4)
+        {
+            gyroXOnOff = 1;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroYOnOff = gyroZOnOff = 0;
+        }
+        else if (*midiLearnFocusParameter == 5)
+        {
+            gyroYOnOff = 1;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroZOnOff = 0;
+        }
+        else if (*midiLearnFocusParameter == 6)
+        {
+            gyroZOnOff = 1;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = 0;
+        }
+    }
+    
+    // Sends Midi CC Value according to On/Off parameter and midiLearnFocusParameter logic
+    if (accelXOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 80, udpConnectionAccelX.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
+    if (accelYOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 81, udpConnectionAccelY.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
+    
+    if (accelZOnOff == 1)
+    {
+        midiMessages.addEvent(MidiMessage::controllerEvent(1, 82, udpConnectionAccelZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+    }
     
     if (gyroXOnOff == 1)
     {
@@ -306,20 +367,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         midiMessages.addEvent(MidiMessage::controllerEvent(1, 18, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
     }
     
-    if (accelXOnOff == 1)
-    {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 80, udpConnectionAccelX.getCCValue()), midiMessages.getLastEventTime() + 1);
-    }
     
-    if (accelYOnOff == 1)
-    {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 81, udpConnectionAccelY.getCCValue()), midiMessages.getLastEventTime() + 1);
-    }
-    
-    if (accelZOnOff == 1)
-    {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 82, udpConnectionAccelZ.getCCValue()), midiMessages.getLastEventTime() + 1);
-    }
     
     
 }   // END PROCESS BLOCK
