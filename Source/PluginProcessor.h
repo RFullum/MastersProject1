@@ -99,19 +99,21 @@ private:
     std::atomic<float>* gateThresholdParam;
     std::atomic<float>* inputGainParam;
     
-    std::atomic<float>* gyroXOnOffParameter;
-    std::atomic<float>* gyroYOnOffParameter;
-    std::atomic<float>* gyroZOnOffParameter;
     std::atomic<float>* accelXOnOffParameter;
     std::atomic<float>* accelYOnOffParameter;
     std::atomic<float>* accelZOnOffParameter;
+    std::atomic<float>* gyroXOnOffParameter;
+    std::atomic<float>* gyroYOnOffParameter;
+    std::atomic<float>* gyroZOnOffParameter;
     
-    std::atomic<float>* gyroXSoloParameter;
-    std::atomic<float>* gyroYSoloParameter;
-    std::atomic<float>* gyroZSoloParameter;
     std::atomic<float>* accelXSoloParameter;
     std::atomic<float>* accelYSoloParameter;
     std::atomic<float>* accelZSoloParameter;
+    std::atomic<float>* gyroXSoloParameter;
+    std::atomic<float>* gyroYSoloParameter;
+    std::atomic<float>* gyroZSoloParameter;
+    
+    
     
     // UDP
     UDPConnection udpConnectionGyroX;
