@@ -46,7 +46,9 @@ parameters(*this, nullptr, "ParameterTree", {
     std::make_unique<AudioParameterChoice>("gyroYOnOff", "Gyro Y", StringArray({ "Off", "On" }), 0),
     std::make_unique<AudioParameterChoice>("gyroZOnOff", "Gyro Z", StringArray({ "Off", "On" }), 0),
     
-    std::make_unique<AudioParameterChoice>("midiLearnFocus", "Midi Learn Focus", StringArray({ "none", "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z"}), 0)
+    std::make_unique<AudioParameterChoice>("midiLearnFocus", "Midi Learn Focus", StringArray({ "none", "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z"}), 0),
+    std::make_unique<AudioParameterChoice>("accelMapShape", "Accelerometer Shape", StringArray({"Linear", "Logarithmic", "Exponential", "Exp-log", "Log-exp"}), 0),
+    std::make_unique<AudioParameterChoice>("gyroMapShape", "Gyro Shape", StringArray({"Linear", "Logarithmic", "Exponential", "Exp-log", "Log-exp"}), 0)
     
     
 })
@@ -66,6 +68,8 @@ parameters(*this, nullptr, "ParameterTree", {
     gyroZOnOffParameter = parameters.getRawParameterValue("gyroZOnOff");
     
     midiLearnFocusParameter = parameters.getRawParameterValue("midiLearnFocus");
+    accelMappingShapeParameter = parameters.getRawParameterValue("accelMapShape");
+    gyroMappingShapeParameter = parameters.getRawParameterValue("gyroMapShape");
     
 }
 
@@ -299,6 +303,13 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     gyroXOnOff = *gyroXOnOffParameter;
     gyroYOnOff = *gyroYOnOffParameter;
     gyroZOnOff = *gyroZOnOffParameter;
+    
+    udpConnectionAccelX.setValueMapShape(*accelMappingShapeParameter);
+    udpConnectionAccelY.setValueMapShape(*accelMappingShapeParameter);
+    udpConnectionAccelZ.setValueMapShape(*accelMappingShapeParameter);
+    udpConnectionGyroX.setValueMapShape(*gyroMappingShapeParameter);
+    udpConnectionGyroY.setValueMapShape(*gyroMappingShapeParameter);
+    udpConnectionGyroZ.setValueMapShape(*gyroMappingShapeParameter);
     
     // Use Midi Learn Focus Parameter to solo individual values
     // allowing Midi Learn to receive one value at a time

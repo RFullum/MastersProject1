@@ -114,6 +114,8 @@ private:
     std::atomic<float>* gyroZSoloParameter;
     
     std::atomic<float>* midiLearnFocusParameter;
+    std::atomic<float>* gyroMappingShapeParameter;
+    std::atomic<float>* accelMappingShapeParameter;
     
     // UDP
     UDPConnection udpConnectionGyroX;
