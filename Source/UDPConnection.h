@@ -49,7 +49,7 @@ public:
     
     /**
      Returns Midi CC Value from 0 - 127
-     Knows maps gyro or accelerometer values accordingly
+     Knows and maps gyro or accelerometer values accordingly
      */
     int getCCValue()
     {
@@ -154,7 +154,10 @@ private:
     
     /**
      Maps accelerometer values -4.0f -- 4.0f, to mid values 0 -- 127. Shapes: Linear, Logarithmic, Exponential,
-     Log to exp, or Exp to log.
+     Log to exp, or Exp to log. Note: Accelerometer gives orientation of Arduino. Rotating around the given axis will give values from
+     -1 to 1, and back down to -1 again. 1 is the pull of earth's gravity and -1 is the same, but upside down. Values greater than 1 or
+     less than -1 are caused by accelerations beyond gravity: A sudden movement up increases value without orientation change; A sudden movement
+     down decreases the value without orientation change.
      */
     int getAccelCC()
     {
@@ -215,11 +218,12 @@ private:
         return ccAccel;
     }
     
+    /**
+     Remaps the values based on offset: Between offset and 1 to 0 and 1; Between offset and -1 to 0 and -1.
+     Note: Only the zeros offset. 1 and -1 remain in the same position.
+     */
     void zeroOrientationRemap()
     {
-        //float accelMax = 1.0f - accelOffsetValue;
-        //float accelMin = -1.0f - accelOffsetValue;
-        
         if (*recastValueFloat >= accelOffsetValue)
         {
             accelOffsetRemap = jmap(*recastValueFloat, accelOffsetValue, 1.0f, 0.0f, 1.0f);
@@ -228,7 +232,6 @@ private:
         {
             accelOffsetRemap = jmap(*recastValueFloat, accelOffsetValue, -1.0f, 0.0f, -1.0f);
         }
-       
     }
     
     
@@ -249,7 +252,4 @@ private:
     float accelOffsetValue = 0.0f;      // The Accel value for zeroing the orientation
     float accelOffsetRemap = 0.0f;      // Remapped Accel values after zeroing orientation
     
-    bool currentXSign;
-    bool currentYSign;
-    bool currentZSign;
 };

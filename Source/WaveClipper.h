@@ -24,6 +24,10 @@ public:
     }
     
 private:
+    /**
+    Takes input sample. If the incoming value is zero or greater, returns 1.0f
+    If the invoming value is less than zero, returns -1.0f
+    */
     float valueClipper(float inVal)
     {
         float outVal;

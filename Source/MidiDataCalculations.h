@@ -31,6 +31,7 @@ public:
         return velocity;
     }
     
+    /// Determins if a new note should be triggered
     bool setNoteTrigger(int noteNumber)
     {
         currentNote = noteNumber;
@@ -49,6 +50,7 @@ public:
         return newNote;
     }
     
+    /// Returns the note number of the previously played Midi note
     int getPreviousNoteNumber()
     {
         return previousNote;

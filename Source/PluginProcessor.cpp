@@ -21,6 +21,7 @@ MasterExp1AudioProcessor::MasterExp1AudioProcessor()
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
                       #endif
+                       // REMOVED AUDIO OUTPUTS:
                        //.withOutput ("Output", AudioChannelSet::stereo(), false)
                      #endif
                        ),
@@ -299,7 +300,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     udpConnectionGyroY.setValueMapShape(*gyroMappingShapeParameter);
     udpConnectionGyroZ.setValueMapShape(*gyroMappingShapeParameter);
     
-    
+    // Zero or Reset axis orientation
     if (*zeroAccelXValuesParameter != 0.0f)
     {
         if (*zeroAccelXValuesParameter == 1.0f)
@@ -402,8 +403,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     {
         midiMessages.addEvent(MidiMessage::controllerEvent(1, 18, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
     }
-    
-    
+    // END MIDI CC VALUE PROCESSING
     
     
 }   // END PROCESS BLOCK

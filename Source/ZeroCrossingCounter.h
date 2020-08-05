@@ -33,6 +33,10 @@ public:
         delete[] crossingBuffer;
     }
     
+    /**
+     Takes sampleRate as argument. Creates a buffer based on lowest frequency to be detected and sampleRate
+     Initializes buffer values to 0.0f
+     */
     void setBuffer(float SR)
     {
         sampleRate = SR;
@@ -58,11 +62,6 @@ public:
     }
     
 private:
-    //
-    //
-    // STILL NOT ACCURATE BELOW C-ish ~65Hz
-    //
-    //
     /**
      Determines minimum number of samples needed for buffer size based on sample rate and
      frequency floor. Buffer must be large enough to accomodate one full cycle plus another half cycle.
@@ -88,18 +87,11 @@ private:
         
         return pow(2.0, power);
     }
-
-    
-//
-//
-// CONSIDER WRITING 0.0F TO REMAINING BUFFER INDEXES WHEN 3 ZERO CROSSINGS DETECTED
-//
-//
     
     /**
-     Writes samples to buffer from writeHeadPos 0. One full cycle is three zero crossings. When crossingCount
-     reaches 3, it finds the length of the cycle by subtracting the first crossing position from the third crossing
-     position. Then it stores that cycle length into the pointer of cycle lengths. Then resets writeHeadPos and
+     Writes samples to buffer from writeHeadPos 0. Two zero crossings is half a cycle. When crossingCount
+     reaches 2, it finds the length of the cycle by subtracting the first crossing position from the second crossing
+     position and multiplying by 2. Then it stores that cycle length into the pointer of cycle lengths. Then resets writeHeadPos and
      crossingCount to 0.
      */
     void writeToBuffer(float sampleIn)

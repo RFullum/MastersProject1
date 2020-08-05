@@ -20,13 +20,16 @@ public:
         sampleRate = SR;
     }
     
-    /// takes sample in and cleans it through HPF and LPF
+    /// takes sample in and cleans it through HPF and then LPF
     float process(float sampleIn)
     {
         return processLPF(processHPF(sampleIn));
     }
 
 private:
+    /**
+     Four stage cascading high pass filter to filter out extremely low frequencies and unwanted subharmonics
+     */
     float processHPF(float sampleIn)
     {
         hpStage1.setCoefficients( IIRCoefficients::makeHighPass(sampleRate, hpfCutoff) );
@@ -42,6 +45,9 @@ private:
         return stage4;
     }
     
+    /**
+     One pole lowpass filter to gently roll off higher harmonics to ensure focus to fundamental frequencies.
+     */
     float processLPF(float sampleIn)
     {
         lpOnePole.setCoefficients( IIRCoefficients::makeLowPass(sampleRate, lpfCutoff) );

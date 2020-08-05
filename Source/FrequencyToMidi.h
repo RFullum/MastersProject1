@@ -13,6 +13,9 @@
 class FrequencyToMidi
 {
 public:
+    /**
+     Takes (float) frequency as an argument and returns the Midi Note Number as an int
+     */
     int getMidiFromFreq(float freq)
     {
         frequency = freq;
@@ -21,11 +24,16 @@ public:
         return midiNoteNumber;
     }
 private:
+    /**
+     Formula to convert frequency to midi.
+     */
     void convertFreqToMidi()
     {
         float conversionNum = log( frequency / 440.0f ) / log( 2 ) * 12 + 69;
         midiNoteNumber = roundToInt(conversionNum);
     }
+    
+    // Member Variables
     int midiNoteNumber;
     float frequency;
 };
