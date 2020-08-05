@@ -27,7 +27,6 @@ public:
             isGyroOrAccel = true;
         else
             isGyroOrAccel = false;
-        //std::cout << "Port: " << udpSocket.getBoundPort() << "\n";
     }
     
     /**
@@ -37,7 +36,6 @@ public:
     {
         udpSocket.read(udpInBuffer, 4, false);      // Puts incoming value into udpInBuffer
         recastValueFloat = (float*)(udpInBuffer);   // recasts buffer back to float
-        // std::cout << sensorName << *recastValueFloat << "\n";
     }
     
     /**
@@ -67,6 +65,26 @@ public:
         }
 
         return ccValue;
+    }
+    
+    /**
+     After Arduino is physically mounted to instrument or device, this method will set Accelerometer values to 0 so its mounted position
+     is the center point. The values are then wrapped so there is full
+     */
+    void zeroOrientation()
+    {
+        if (!isGyroOrAccel)
+        {
+            accelOffsetValue = *recastValueFloat;
+        }
+    }
+    
+    /**
+     Resets Accelerometer offset to 0.0f
+     */
+    void resetOrientation()
+    {
+        accelOffsetValue = 0.0f;
     }
     
     
@@ -141,61 +159,78 @@ private:
     int getAccelCC()
     {
         int ccAccel = 0;
+        zeroOrientationRemap();
         
         // Linear map
         if (mappingShape == 0)
         {
-            ccAccel = jmap(*recastValueFloat, -4.0f, 4.0f, 0.0f, 127.0f);
+            ccAccel = jmap(accelOffsetRemap, -4.0f, 4.0f, 0.0f, 127.0f);
         }
         // Logarithmic map
         else if (mappingShape == 1)
         {
-            float accelMapLog = log( jmap(*recastValueFloat, -4.0f, 4.0f, 1.0f, MathConstants<float>::euler) );
+            float accelMapLog = log( jmap(accelOffsetRemap, -4.0f, 4.0f, 1.0f, MathConstants<float>::euler) );
             ccAccel = jmap(accelMapLog, 0.0f, 1.0f, 0.0f, 127.0f);
         }
         // Exponential map
         else if (mappingShape == 2)
         {
-            float accelMapExp = pow( jmap(*recastValueFloat, -4.0f, 4.0f, 0.0f, 1.0f), 2 );
+            float accelMapExp = pow( jmap(accelOffsetRemap, -4.0f, 4.0f, 0.0f, 1.0f), 2 );
             ccAccel = jmap(accelMapExp, 0.0f, 1.0f, 0.0f, 127.0f);
         }
         // Log 0-64, exp 64-127
         else if (mappingShape == 3)
         {
-            if (*recastValueFloat < 0.0f)
+            if (accelOffsetRemap < 0.0f)
             {
-                float accelMapLog = log( jmap(*recastValueFloat, -4.0f, 0.0f, 1.0f, MathConstants<float>::euler) );
+                float accelMapLog = log( jmap(accelOffsetRemap, -4.0f, 0.0f, 1.0f, MathConstants<float>::euler) );
                 ccAccel = jmap(accelMapLog, 0.0f, 1.0f, 0.0f, 64.0f);
             }
             else
             {
-                float accelMapExp = pow( jmap(*recastValueFloat, 0.0f, 4.0f, 0.0f, 1.0f), 2 );
+                float accelMapExp = pow( jmap(accelOffsetRemap, 0.0f, 4.0f, 0.0f, 1.0f), 2 );
                 ccAccel = jmap(accelMapExp, 0.0f, 1.0f, 64.0f, 127.0f);
             }
         }
         // Exp 0-64, log 64-127
         else if (mappingShape == 4)
         {
-            if (*recastValueFloat < 0.0f)
+            if (accelOffsetRemap < 0.0f)
             {
-                float accelMapExp = pow( jmap(*recastValueFloat, -4.0f, 0.0f, 0.0f, 1.0f), 2 );
+                float accelMapExp = pow( jmap(accelOffsetRemap, -4.0f, 0.0f, 0.0f, 1.0f), 2 );
                 ccAccel = jmap(accelMapExp, 0.0f, 1.0f, 0.0f, 64.0f);
             }
             else
             {
-                float accelMapLog = log( jmap(*recastValueFloat, 0.0f, 4.0f, 1.0f, MathConstants<float>::euler) );
+                float accelMapLog = log( jmap(accelOffsetRemap, 0.0f, 4.0f, 1.0f, MathConstants<float>::euler) );
                 ccAccel = jmap(accelMapLog, 0.0f, 1.0f, 64.0f, 127.0f);
             }
         }
         // Catch any erroneous values and set to linear as a safety net
         else
         {
-            ccAccel = jmap(*recastValueFloat, -4.0f, 4.0f, 0.0f, 127.0f);
+            ccAccel = jmap(accelOffsetRemap, -4.0f, 4.0f, 0.0f, 127.0f);
         }
             
-        std::cout << "\naccel: " << ccAccel;
         return ccAccel;
     }
+    
+    void zeroOrientationRemap()
+    {
+        //float accelMax = 1.0f - accelOffsetValue;
+        //float accelMin = -1.0f - accelOffsetValue;
+        
+        if (*recastValueFloat >= accelOffsetValue)
+        {
+            accelOffsetRemap = jmap(*recastValueFloat, accelOffsetValue, 1.0f, 0.0f, 1.0f);
+        }
+        else
+        {
+            accelOffsetRemap = jmap(*recastValueFloat, accelOffsetValue, -1.0f, 0.0f, -1.0f);
+        }
+       
+    }
+    
     
     //
     // Member Variables
@@ -211,5 +246,10 @@ private:
     // Mapping Values
     bool isGyroOrAccel;                 // True = Gyro; False = Accelerometer
     float mappingShape = 0.0f;          // Gets shape of value mapping from parameter (linear, log, exp, exp-log, log-exp)
+    float accelOffsetValue = 0.0f;      // The Accel value for zeroing the orientation
+    float accelOffsetRemap = 0.0f;      // Remapped Accel values after zeroing orientation
     
+    bool currentXSign;
+    bool currentYSign;
+    bool currentZSign;
 };

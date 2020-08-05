@@ -66,8 +66,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
-    // class Instances
-    AudioProcessorValueTreeState parameters;
+    // Header file class instances
     WaveClipper waveClipper;
     NoiseGate noiseGate;
     BandLimiter bandLimiter;
@@ -83,7 +82,7 @@ private:
     
     int currentMidiNoteNumber = 0;
     int previousMidiNoteNumber = 0;
-    int midiChannel = 1;    // 1 for eas of use. Can make selectable parameter
+    int midiChannel = 1;    // 1 for ease of use. Can make selectable parameter in future versions
     
     bool triggerNewNote = false;
     
@@ -96,6 +95,9 @@ private:
     bool accelZOnOff = false;
     
     // Parameter tree variables
+    AudioProcessorValueTreeState parameters;
+    //AudioProcessorValueTreeState::ButtonAttachment zeroOrientationButton;
+    
     std::atomic<float>* gateThresholdParam;
     std::atomic<float>* inputGainParam;
     
@@ -116,6 +118,12 @@ private:
     std::atomic<float>* midiLearnFocusParameter;
     std::atomic<float>* gyroMappingShapeParameter;
     std::atomic<float>* accelMappingShapeParameter;
+    
+    std::atomic<float>* zeroAccelXValuesParameter;
+    std::atomic<float>* zeroAccelYValuesParameter;
+    std::atomic<float>* zeroAccelZValuesParameter;
+    
+    //TextButton centerValues { "Center Accel Values" };
     
     // UDP
     UDPConnection udpConnectionGyroX;

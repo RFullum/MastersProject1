@@ -26,17 +26,16 @@ MasterExp1AudioProcessor::MasterExp1AudioProcessor()
                        ),
 #endif
 
-parameters(*this, nullptr, "ParameterTree", {
+//
 // ParameterFloats:
 // id, description, min, max, default
 //
 // ParameterChoices:
 // id, descript, choices (StringArray), default index of StringArray
 //
+parameters(*this, nullptr, "ParameterTree", {
     std::make_unique<AudioParameterFloat>("input_gain", "Input Gain", 0.1f, 10.0f, 4.25f),
     std::make_unique<AudioParameterFloat>("gate_threshold", "Gate Threshold", 0.0f, 1.0f, 0.01f),
-    
-    //std::make_unique<AudioParameterChoice>("ccGyroX", "Gyro X CC Number", StringArray({}), 1)
     
     std::make_unique<AudioParameterChoice>("accelXOnOff", "Accel X", StringArray({ "Off", "On" }), 0),
     std::make_unique<AudioParameterChoice>("accelYOnOff", "Accel Y", StringArray({ "Off", "On" }), 0),
@@ -48,11 +47,12 @@ parameters(*this, nullptr, "ParameterTree", {
     
     std::make_unique<AudioParameterChoice>("midiLearnFocus", "Midi Learn Focus", StringArray({ "none", "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z"}), 0),
     std::make_unique<AudioParameterChoice>("accelMapShape", "Accelerometer Shape", StringArray({"Linear", "Logarithmic", "Exponential", "Exp-log", "Log-exp"}), 0),
-    std::make_unique<AudioParameterChoice>("gyroMapShape", "Gyro Shape", StringArray({"Linear", "Logarithmic", "Exponential", "Exp-log", "Log-exp"}), 0)
+    std::make_unique<AudioParameterChoice>("gyroMapShape", "Gyro Shape", StringArray({"Linear", "Logarithmic", "Exponential", "Exp-log", "Log-exp"}), 0),
     
-    
+    std::make_unique<AudioParameterChoice>("zeroAccelXOrientation", "Zero X Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0),
+    std::make_unique<AudioParameterChoice>("zeroAccelYOrientation", "Zero Y Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0),
+    std::make_unique<AudioParameterChoice>("zeroAccelZOrientation", "Zero Z Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0)
 })
-
 
 {
     // Param Construct
@@ -71,6 +71,9 @@ parameters(*this, nullptr, "ParameterTree", {
     accelMappingShapeParameter = parameters.getRawParameterValue("accelMapShape");
     gyroMappingShapeParameter = parameters.getRawParameterValue("gyroMapShape");
     
+    zeroAccelXValuesParameter = parameters.getRawParameterValue("zeroAccelXOrientation");
+    zeroAccelYValuesParameter = parameters.getRawParameterValue("zeroAccelYOrientation");
+    zeroAccelZValuesParameter = parameters.getRawParameterValue("zeroAccelZOrientation");
 }
 
 MasterExp1AudioProcessor::~MasterExp1AudioProcessor()
@@ -295,7 +298,7 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     // MIDI CC Value
     //
     
-    // Get global on off value from parameter tree
+    // Get global on/off value from parameter tree
     accelXOnOff = *accelXOnOffParameter;
     accelYOnOff = *accelYOnOffParameter;
     accelZOnOff = *accelZOnOffParameter;
@@ -304,12 +307,50 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     gyroYOnOff = *gyroYOnOffParameter;
     gyroZOnOff = *gyroZOnOffParameter;
     
+    // Sets shape of value mappings (linear, log, exp, exp-log, log-exp)
     udpConnectionAccelX.setValueMapShape(*accelMappingShapeParameter);
     udpConnectionAccelY.setValueMapShape(*accelMappingShapeParameter);
     udpConnectionAccelZ.setValueMapShape(*accelMappingShapeParameter);
     udpConnectionGyroX.setValueMapShape(*gyroMappingShapeParameter);
     udpConnectionGyroY.setValueMapShape(*gyroMappingShapeParameter);
     udpConnectionGyroZ.setValueMapShape(*gyroMappingShapeParameter);
+    
+    
+    if (*zeroAccelXValuesParameter != 0.0f)
+    {
+        if (*zeroAccelXValuesParameter == 1.0f)
+        {
+            udpConnectionAccelX.zeroOrientation();
+        }
+        else
+        {
+            udpConnectionAccelX.resetOrientation();
+        }
+    }
+    
+    if (*zeroAccelYValuesParameter != 0.0f)
+    {
+        if (*zeroAccelYValuesParameter == 1.0f)
+        {
+            udpConnectionAccelY.zeroOrientation();
+        }
+        else
+        {
+            udpConnectionAccelY.resetOrientation();
+        }
+    }
+    
+    if (*zeroAccelZValuesParameter != 0.0f)
+    {
+        if (*zeroAccelZValuesParameter == 1.0f)
+        {
+            udpConnectionAccelZ.zeroOrientation();
+        }
+        else
+        {
+            udpConnectionAccelZ.resetOrientation();
+        }
+    }
     
     // Use Midi Learn Focus Parameter to solo individual values
     // allowing Midi Learn to receive one value at a time
