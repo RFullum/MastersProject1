@@ -40,7 +40,6 @@ public:
         float minSamples = frequencyFloorLength();
         crossingBufferSize = (int)setBufferSize(minSamples);
         crossingBuffer = new float[crossingBufferSize];
-        //std::cout << "\n\nSR " << sampleRate << "\nbufSiz " << crossingBufferSize << "\n\n";
         
         for (int i=0; i<crossingBufferSize; i++)
         {
@@ -129,7 +128,7 @@ private:
                     secondCrossing = writeHeadPos;
             }
         }
-        //std::cout << "first " << firstCrossing << " third " << thirdCrossing << "\n";
+        
         if (crossingCount < 2)
         {
             writeHeadPos++;
@@ -145,8 +144,6 @@ private:
             writeHeadPos = 0;
             crossingCount = 0;
         }
-        
-        //std::cout << "wHP " << writeHeadPos << "\n";
     }
     
     /**
@@ -158,7 +155,6 @@ private:
         
         for (int i=0; i<cycleLengthsSize; i++)
         {
-            //std::cout << "length " << i << " " << cycleLengths[i] << "\n";
             sumCycleLength += cycleLengths[i];
         }
         

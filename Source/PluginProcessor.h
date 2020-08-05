@@ -96,7 +96,6 @@ private:
     
     // Parameter tree variables
     AudioProcessorValueTreeState parameters;
-    //AudioProcessorValueTreeState::ButtonAttachment zeroOrientationButton;
     
     std::atomic<float>* gateThresholdParam;
     std::atomic<float>* inputGainParam;
@@ -122,8 +121,6 @@ private:
     std::atomic<float>* zeroAccelXValuesParameter;
     std::atomic<float>* zeroAccelYValuesParameter;
     std::atomic<float>* zeroAccelZValuesParameter;
-    
-    //TextButton centerValues { "Center Accel Values" };
     
     // UDP
     UDPConnection udpConnectionGyroX;
