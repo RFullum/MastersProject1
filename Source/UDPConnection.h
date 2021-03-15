@@ -242,7 +242,7 @@ private:
     // UDP Connection
     int currentPort;
     float *recastValueFloat;            // Recast byte buffer into float
-    Byte* udpInBuffer = new Byte[4];    // Buffer for incoming byte arrays
+    unsigned char* udpInBuffer = new unsigned char[4];    // Buffer for incoming byte arrays
     
     DatagramSocket udpSocket;           // JUCE's UDP wrapper instance
     

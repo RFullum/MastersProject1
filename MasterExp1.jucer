@@ -8,23 +8,23 @@
             file="Source/PluginProcessor.cpp"/>
       <FILE id="yixiVG" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
+      <FILE id="S12wz8" name="BandLimiting.h" compile="0" resource="0" file="Source/BandLimiting.h"/>
+      <FILE id="FmOOth" name="FrequencyCalculation.h" compile="0" resource="0"
+            file="Source/FrequencyCalculation.h"/>
+      <FILE id="UYf0GH" name="FrequencyToMidi.h" compile="0" resource="0"
+            file="Source/FrequencyToMidi.h"/>
+      <FILE id="y0GlW6" name="MidiDataCalculations.h" compile="0" resource="0"
+            file="Source/MidiDataCalculations.h"/>
+      <FILE id="TFIsuf" name="NoiseGate.h" compile="0" resource="0" file="Source/NoiseGate.h"/>
+      <FILE id="yn7vUE" name="TransientTracker.h" compile="0" resource="0"
+            file="Source/TransientTracker.h"/>
+      <FILE id="IFn4Sx" name="UDPConnection.h" compile="0" resource="0" file="Source/UDPConnection.h"/>
+      <FILE id="Km5Wvq" name="WaveClipper.h" compile="0" resource="0" file="Source/WaveClipper.h"/>
+      <FILE id="N1ChKQ" name="ZeroCrossingCounter.h" compile="0" resource="0"
+            file="Source/ZeroCrossingCounter.h"/>
       <FILE id="ptH3kY" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="rX1M3S" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="qluSTk" name="WaveClipper.h" compile="0" resource="0" file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/WaveClipper.h"/>
-      <FILE id="DB1dJn" name="NoiseGate.h" compile="0" resource="0" file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/NoiseGate.h"/>
-      <FILE id="vMrXwU" name="BandLimiting.h" compile="0" resource="0" file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/BandLimiting.h"/>
-      <FILE id="xUVp1E" name="ZeroCrossingCounter.h" compile="0" resource="0"
-            file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/ZeroCrossingCounter.h"/>
-      <FILE id="KvEaJP" name="FrequencyCalculation.h" compile="0" resource="0"
-            file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/FrequencyCalculation.h"/>
-      <FILE id="aHZ5hw" name="TransientTracker.h" compile="0" resource="0"
-            file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/TransientTracker.h"/>
-      <FILE id="GGqOQi" name="FrequencyToMidi.h" compile="0" resource="0"
-            file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/FrequencyToMidi.h"/>
-      <FILE id="m9QmUW" name="MidiDataCalculations.h" compile="0" resource="0"
-            file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/MidiDataCalculations.h"/>
-      <FILE id="GFTNNB" name="UDPConnection.h" compile="0" resource="0" file="/Users/Prophetnoise/JUCE/Projects/MasterExp1/Source/UDPConnection.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
