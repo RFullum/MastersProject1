@@ -16,7 +16,6 @@
 #include "BandLimiting.h"
 #include "ZeroCrossingCounter.h"
 #include "FrequencyCalculation.h"
-#include "TransientTracker.h"
 #include "FrequencyToMidi.h"
 #include "MidiDataCalculations.h"
 #include "UDPConnection.h"

@@ -10,50 +10,33 @@
 
 #pragma once
 
+#include <JuceHeader.h>
+
 
 class BandLimiter
 {
 public:
+    BandLimiter();
+    ~BandLimiter();
+    
+    
     /// Sets sampleRate
-    void setSampleRate(float SR)
-    {
-        sampleRate = SR;
-    }
+    void setSampleRate(float SR);
     
     /// takes sample in and cleans it through HPF and then LPF
-    float process(float sampleIn)
-    {
-        return processLPF(processHPF(sampleIn));
-    }
+    float process(float sampleIn);
 
 private:
     /**
      Four stage cascading high pass filter to filter out extremely low frequencies and unwanted subharmonics
      */
-    float processHPF(float sampleIn)
-    {
-        hpStage1.setCoefficients( IIRCoefficients::makeHighPass(sampleRate, hpfCutoff) );
-        hpStage2.setCoefficients( IIRCoefficients::makeHighPass(sampleRate, hpfCutoff) );
-        hpStage3.setCoefficients( IIRCoefficients::makeHighPass(sampleRate, hpfCutoff) );
-        hpStage4.setCoefficients( IIRCoefficients::makeHighPass(sampleRate, hpfCutoff) );
-        
-        float stage1 = hpStage1.processSingleSampleRaw(sampleIn);
-        float stage2 = hpStage2.processSingleSampleRaw(stage1);
-        float stage3 = hpStage3.processSingleSampleRaw(stage2);
-        float stage4 = hpStage4.processSingleSampleRaw(stage3);
-        
-        return stage4;
-    }
+    float processHPF(float sampleIn);
     
     /**
      One pole lowpass filter to gently roll off higher harmonics to ensure focus to fundamental frequencies.
      */
-    float processLPF(float sampleIn)
-    {
-        lpOnePole.setCoefficients( IIRCoefficients::makeLowPass(sampleRate, lpfCutoff) );
-        
-        return lpOnePole.processSingleSampleRaw(sampleIn);
-    }
+    float processLPF(float sampleIn);
+    
     
     // Member Variables
     IIRFilter hpStage1;
@@ -62,8 +45,8 @@ private:
     IIRFilter hpStage4;
     IIRFilter lpOnePole;
     
-    float hpfCutoff = 15.0f;
-    float lpfCutoff = 150.0f;
+    float hpfCutoff;
+    float lpfCutoff;
     
     float sampleRate;
 };

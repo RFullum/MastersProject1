@@ -14,17 +14,16 @@
 class FrequencyCalculation
 {
 public:
+    FrequencyCalculation();
+    ~FrequencyCalculation();
+    
+    
     /// Sets sampleRate
-    void setSampleRate(float SR)
-    {
-        sampleRate = SR;
-    }
+    void setSampleRate(float SR);
     
     /// Takes the cycleLength in and returns the current frequency
-    float freqCalc(float cycleLength)
-    {
-        return sampleRate / cycleLength;
-    }
+    float freqCalc(float cycleLength);
+    
     
 private:
     float sampleRate;
