@@ -30,29 +30,50 @@ MasterExp1AudioProcessor::MasterExp1AudioProcessor()
 //
 // ParameterFloats:
 // id, description, min, max, default
+// ~OR~
+// id, description, normalisableRange(min, max, increment, skew, symmetric),
+//                 default, param label, param category, string from value, string to value
 //
 // ParameterChoices:
-// id, descript, choices (StringArray), default index of StringArray
+// id, description, StringArray( {"choice1", "choice2", ... } ), default index of StringArray
 //
 parameters(*this, nullptr, "ParameterTree", {
-    std::make_unique<AudioParameterFloat>("input_gain", "Input Gain", 0.1f, 10.0f, 4.25f),
-    std::make_unique<AudioParameterFloat>("gate_threshold", "Gate Threshold", 0.0f, 1.0f, 0.01f),
+    std::make_unique<AudioParameterFloat> ( "input_gain", "Input Gain",
+                                            NormalisableRange<float>(0.1f, 10.0f, 0.1f, 1.0f, false), 4.25, "gain" ),
+    std::make_unique<AudioParameterFloat> ( "gate_threshold", "Gate Threshold",
+                                            NormalisableRange<float>(0.0f, 1.0f, 0.01f, 1.0f, false), 0.01f, "gate" ),
     
-    std::make_unique<AudioParameterChoice>("accelXOnOff", "Accel X", StringArray({ "Off", "On" }), 0),
-    std::make_unique<AudioParameterChoice>("accelYOnOff", "Accel Y", StringArray({ "Off", "On" }), 0),
-    std::make_unique<AudioParameterChoice>("accelZOnOff", "Accel Z", StringArray({ "Off", "On" }), 0),
+    std::make_unique<AudioParameterChoice> ( "accelXOnOff", "Accel X", StringArray( { "Off", "On" } ), 0 ),
+    std::make_unique<AudioParameterChoice> ( "accelYOnOff", "Accel Y", StringArray( { "Off", "On" } ), 0 ),
+    std::make_unique<AudioParameterChoice> ( "accelZOnOff", "Accel Z", StringArray( { "Off", "On" } ), 0 ),
     
-    std::make_unique<AudioParameterChoice>("gyroXOnOff", "Gyro X", StringArray({ "Off", "On" }), 0),
-    std::make_unique<AudioParameterChoice>("gyroYOnOff", "Gyro Y", StringArray({ "Off", "On" }), 0),
-    std::make_unique<AudioParameterChoice>("gyroZOnOff", "Gyro Z", StringArray({ "Off", "On" }), 0),
+    std::make_unique<AudioParameterChoice> ( "gyroXOnOff", "Gyro X", StringArray( { "Off", "On" } ), 0 ),
+    std::make_unique<AudioParameterChoice> ( "gyroYOnOff", "Gyro Y", StringArray( { "Off", "On" } ), 0 ),
+    std::make_unique<AudioParameterChoice> ( "gyroZOnOff", "Gyro Z", StringArray( { "Off", "On" } ), 0 ),
     
-    std::make_unique<AudioParameterChoice>("midiLearnFocus", "Midi Learn Focus", StringArray({ "none", "Accel X", "Accel Y", "Accel Z", "Gyro X", "Gyro Y", "Gyro Z"}), 0),
-    std::make_unique<AudioParameterChoice>("accelMapShape", "Accelerometer Shape", StringArray({"Linear", "Logarithmic", "Exponential", "Exp-log", "Log-exp"}), 0),
-    std::make_unique<AudioParameterChoice>("gyroMapShape", "Gyro Shape", StringArray({"Linear", "Logarithmic", "Exponential", "Exp-log", "Log-exp"}), 0),
+    std::make_unique<AudioParameterChoice> ( "midiLearnFocus", "Midi Learn Focus",
+                                             StringArray( { "none",
+                                                            "Accel X", "Accel Y", "Accel Z",
+                                                            "Gyro X",  "Gyro Y",  "Gyro Z" } ),
+                                             0 ),
+    std::make_unique<AudioParameterChoice> ( "accelMapShape", "Accelerometer Shape",
+                                             StringArray( { "Linear",  "Logarithmic", "Exponential",
+                                                            "Exp-log", "Log-exp" } ),
+                                             0 ),
+    std::make_unique<AudioParameterChoice> ( "gyroMapShape", "Gyro Shape",
+                                             StringArray( { "Linear",  "Logarithmic", "Exponential",
+                                                            "Exp-log", "Log-exp" } ),
+                                             0 ),
     
-    std::make_unique<AudioParameterChoice>("zeroAccelXOrientation", "Zero X Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0),
-    std::make_unique<AudioParameterChoice>("zeroAccelYOrientation", "Zero Y Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0),
-    std::make_unique<AudioParameterChoice>("zeroAccelZOrientation", "Zero Z Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0)
+    std::make_unique<AudioParameterChoice> ( "zeroAccelXOrientation", "Zero X Orientation",
+                                             StringArray( { "Active", "Set Orientation", "Reset" } ),
+                                             0),
+    std::make_unique<AudioParameterChoice> ( "zeroAccelYOrientation", "Zero Y Orientation",
+                                             StringArray( { "Active", "Set Orientation", "Reset" } ),
+                                             0 ),
+    std::make_unique<AudioParameterChoice> ( "zeroAccelZOrientation", "Zero Z Orientation",
+                                             StringArray( { "Active", "Set Orientation", "Reset" } ),
+                                             0 )
 }),
 
 freq(0.0f),
