@@ -23,6 +23,14 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
       udpPortAccelY(65017),
       udpPortAccelZ(65018),
 
+      accelXOnOff(false),
+      accelYOnOff(false),
+      accelZOnOff(false),
+      
+      gyroXOnOff(false),
+      gyroYOnOff(false),
+      gyroZOnOff(false),
+
       onyx                   ( Colour( (uint8)53,  (uint8)59,  (uint8)60  ) ),
       lightSlateGray         ( Colour( (uint8)130, (uint8)146, (uint8)152 ) ),
       magicMint              ( Colour( (uint8)174, (uint8)255, (uint8)216 ) ),
@@ -31,7 +39,7 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
 
       processor (p)
 {
-    setSize (1000, 1000);
+    setSize (1000, 500);
     
     // Timer
     Timer::startTimerHz(60);
@@ -49,6 +57,14 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
     
     sliderSetup ( inGainSlider,        vertSlider, true );
     sliderSetup ( gateThresholdSlider, vertSlider, true );
+    
+    // Invisible Slider Setup
+    sliderSetup ( accelXCCSlider, vertSlider, false );
+    sliderSetup ( accelYCCSlider, vertSlider, false );
+    sliderSetup ( accelZCCSlider, vertSlider, false );
+    sliderSetup ( gyroXCCSlider,  vertSlider, false );
+    sliderSetup ( gyroYCCSlider,  vertSlider, false );
+    sliderSetup ( gyroZCCSlider,  vertSlider, false );
     
     // Combo Box Setup
     onOffBoxSetup ( accelXBox );
@@ -90,6 +106,34 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
     labelSetup ( zeroYLabel,         "Zero Y Orientation",   labelFontSize );
     labelSetup ( zeroZLabel,         "Zero Z Orientation",   labelFontSize );
     
+    // Attachements
+    inGainAttach        = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "input_gain",     inGainSlider        );
+    gateThresholdAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "gate_threshold", gateThresholdSlider );
+    
+    accelXAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "accelXOnOff", accelXBox );
+    accelYAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "accelYOnOff", accelYBox );
+    accelZAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "accelZOnOff", accelZBox );
+    
+    gyroXAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "gyroXOnOff", gyroXBox );
+    gyroYAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "gyroYOnOff", gyroYBox );
+    gyroZAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "gyroZOnOff", gyroZBox );
+    
+    midiLearnAttach  = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "midiLearnFocus", midiLearnBox  );
+    accelShapeAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "accelMapShape",  accelShapeBox );
+    gyroShapeAttach  = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "gyroMapShape",   gyroShapeBox  );
+    
+    zeroXAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "zeroAccelXOrientation", zeroXBox );
+    zeroYAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "zeroAccelYOrientation", zeroYBox );
+    zeroZAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "zeroAccelZOrientation", zeroZBox );
+    
+    // Invisible Attachments
+    accelXCCAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "accelXCC", accelXCCSlider );
+    accelYCCAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "accelYCC", accelYCCSlider );
+    accelZCCAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "accelZCC", accelZCCSlider );
+    gyroXCCAttach  = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "gyroXCC",  gyroXCCSlider  );
+    gyroYCCAttach  = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "gyroYCC",  gyroYCCSlider  );
+    gyroZCCAttach  = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "gyroZCC",  gyroZCCSlider  );
+    
 }
 
 MasterExp1AudioProcessorEditor::~MasterExp1AudioProcessorEditor()
@@ -100,63 +144,158 @@ MasterExp1AudioProcessorEditor::~MasterExp1AudioProcessorEditor()
 //==============================================================================
 void MasterExp1AudioProcessorEditor::paint (Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    float rounding = 2.0f;
+    
+    g.fillAll ( lightSlateGray );
+    
+    g.setColour( onyx );
+    g.fillRoundedRectangle ( sliderAreaInner,  rounding );
+    g.fillRoundedRectangle ( onOffAreaInner,   rounding );
+    g.fillRoundedRectangle ( utilityAreaInner, rounding );
 }
 
 void MasterExp1AudioProcessorEditor::resized()
 {
+    // Main GUI Structure
+    float padding     = 2.0f;
+    float labelHeight = 50.0f;
+    
+    Rectangle<int> totalArea = getLocalBounds();
+    
+    Rectangle<int> sliderArea  = totalArea.removeFromLeft( totalArea.getWidth() * 0.25f ).reduced( padding );
+    Rectangle<int> onOffArea   = totalArea.removeFromLeft( totalArea.getWidth() * 0.5f  ).reduced( padding );
+    Rectangle<int> utilityArea = totalArea.reduced( padding );
+    
+    sliderAreaInner.setBounds  ( sliderArea.getX(),  sliderArea.getY(),  sliderArea.getWidth(),  sliderArea.getHeight()  );
+    onOffAreaInner.setBounds   ( onOffArea.getX(),   onOffArea.getY(),   onOffArea.getWidth(),   onOffArea.getHeight()   );
+    utilityAreaInner.setBounds ( utilityArea.getX(), utilityArea.getY(), utilityArea.getWidth(), utilityArea.getHeight() );
+    
+    // Sliders
+    Rectangle<int> inGainArea = sliderArea.removeFromLeft( sliderArea.getWidth() * 0.5f );
+    Rectangle<int> inGainLabelArea  = inGainArea.removeFromTop( labelHeight );
+    Rectangle<int> inGainSliderArea = inGainArea;
+    
+    inGainLabel.setBounds  ( inGainLabelArea );
+    inGainSlider.setBounds ( inGainSliderArea );
+    
+    Rectangle<int> gateThreshArea       = sliderArea;
+    Rectangle<int> gateThreshLabelArea  = gateThreshArea.removeFromTop( labelHeight );
+    Rectangle<int> gateThreshSliderArea = gateThreshArea;
+    
+    gateThresholdLabel.setBounds  ( gateThreshLabelArea );
+    gateThresholdSlider.setBounds ( gateThreshSliderArea );
+    
+    // On/Off CombBoxes
+    float boxXPadding = 25.0f;
+    float boxYPadding = 20.0f;
+    float onOffBoxHeight  = onOffArea.getHeight() / 6.0f;
+    float onOffLabelWidth = onOffArea.getWidth() * 0.33f;
+    
+    Rectangle<int> accelXArea      = onOffArea.removeFromTop   ( onOffBoxHeight  );
+    Rectangle<int> accelXLabelArea = accelXArea.removeFromLeft ( onOffLabelWidth );
+    Rectangle<int> accelXBoxArea   = accelXArea.reduced        ( boxXPadding, boxYPadding );
+    
+    accelXLabel.setBounds ( accelXLabelArea );
+    accelXBox.setBounds   ( accelXBoxArea   );
+    
+    Rectangle<int> accelYArea      = onOffArea.removeFromTop   ( onOffBoxHeight  );
+    Rectangle<int> accelYLabelArea = accelYArea.removeFromLeft ( onOffLabelWidth );
+    Rectangle<int> accelYBoxArea   = accelYArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    accelYLabel.setBounds ( accelYLabelArea );
+    accelYBox.setBounds   ( accelYBoxArea   );
+    
+    Rectangle<int> accelZArea      = onOffArea.removeFromTop   ( onOffBoxHeight  );
+    Rectangle<int> accelZLabelArea = accelZArea.removeFromLeft ( onOffLabelWidth );
+    Rectangle<int> accelZBoxArea   = accelZArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    accelZLabel.setBounds ( accelZLabelArea );
+    accelZBox.setBounds   ( accelZBoxArea   );
+    
+    Rectangle<int> gyroXArea      = onOffArea.removeFromTop  ( onOffBoxHeight  );
+    Rectangle<int> gyroXLabelArea = gyroXArea.removeFromLeft ( onOffLabelWidth );
+    Rectangle<int> gyroXBoxArea   = gyroXArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    gyroXLabel.setBounds ( gyroXLabelArea );
+    gyroXBox.setBounds   ( gyroXBoxArea   );
+    
+    Rectangle<int> gyroYArea      = onOffArea.removeFromTop  ( onOffBoxHeight  );
+    Rectangle<int> gyroYLabelArea = gyroYArea.removeFromLeft ( onOffLabelWidth );
+    Rectangle<int> gyroYBoxArea   = gyroYArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    gyroYLabel.setBounds ( gyroYLabelArea );
+    gyroYBox.setBounds   ( gyroYBoxArea   );
+    
+    Rectangle<int> gyroZArea      = onOffArea;
+    Rectangle<int> gyroZLabelArea = gyroZArea.removeFromLeft ( onOffLabelWidth );
+    Rectangle<int> gyroZBoxArea   = gyroZArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    gyroZLabel.setBounds ( gyroZLabelArea );
+    gyroZBox.setBounds   ( gyroZBoxArea );
+    
+    // Utility ComboBoxes
+    float uteBoxHeight  = utilityArea.getHeight() / 6.0f;
+    float uteLabelWidth = utilityArea.getWidth() * 0.33f;
+    
+    Rectangle<int> midiLearnArea      = utilityArea.removeFromTop    ( uteBoxHeight  );
+    Rectangle<int> midiLearnLabelArea = midiLearnArea.removeFromLeft ( uteLabelWidth );
+    Rectangle<int> midiLearnBoxArea   = midiLearnArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    midiLearnLabel.setBounds ( midiLearnLabelArea );
+    midiLearnBox.setBounds   ( midiLearnBoxArea   );
+    
+    Rectangle<int> accelShapeArea      = utilityArea.removeFromTop     ( uteBoxHeight  );
+    Rectangle<int> accelShapeLabelArea = accelShapeArea.removeFromLeft ( uteLabelWidth );
+    Rectangle<int> accelShapeBoxArea   = accelShapeArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    accelShapeLabel.setBounds ( accelShapeLabelArea );
+    accelShapeBox.setBounds   ( accelShapeBoxArea   );
+    
+    Rectangle<int> gyroShapeArea      = utilityArea.removeFromTop    ( uteBoxHeight  );
+    Rectangle<int> gyroShapeLabelArea = gyroShapeArea.removeFromLeft ( uteLabelWidth );
+    Rectangle<int> gyroShapeBoxArea   = gyroShapeArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    gyroShapeLabel.setBounds ( gyroShapeLabelArea );
+    gyroShapeBox.setBounds   ( gyroShapeBoxArea   );
+    
+    Rectangle<int> zeroXArea      = utilityArea.removeFromTop ( uteBoxHeight  );
+    Rectangle<int> zeroXLabelArea = zeroXArea.removeFromLeft  ( uteLabelWidth );
+    Rectangle<int> zeroXBoxArea   = zeroXArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    zeroXLabel.setBounds ( zeroXLabelArea );
+    zeroXBox.setBounds   ( zeroXBoxArea   );
+    
+    Rectangle<int> zeroYArea      = utilityArea.removeFromTop ( uteBoxHeight  );
+    Rectangle<int> zeroYLabelArea = zeroYArea.removeFromLeft  ( uteLabelWidth );
+    Rectangle<int> zeroYBoxArea   = zeroYArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    zeroYLabel.setBounds ( zeroYLabelArea );
+    zeroYBox.setBounds   ( zeroYBoxArea   );
+    
+    Rectangle<int> zeroZArea      = utilityArea;
+    Rectangle<int> zeroZLabelArea = zeroZArea.removeFromLeft  ( uteLabelWidth );
+    Rectangle<int> zeroZBoxArea   = zeroZArea.reduced        ( boxXPadding, boxYPadding );;
+    
+    zeroZLabel.setBounds ( zeroZLabelArea );
+    zeroZBox.setBounds   ( zeroZBoxArea   );
     
 }
 
 void MasterExp1AudioProcessorEditor::timerCallback()
 {
-    /*
-    // Sets shape of value mappings (linear, log, exp, exp-log, log-exp)
-    udpConnectionAccelX.setValueMapShape ( *accelMappingShapeParameter );
-    udpConnectionAccelY.setValueMapShape ( *accelMappingShapeParameter );
-    udpConnectionAccelZ.setValueMapShape ( *accelMappingShapeParameter );
-    udpConnectionGyroX.setValueMapShape  ( *gyroMappingShapeParameter  );
-    udpConnectionGyroY.setValueMapShape  ( *gyroMappingShapeParameter  );
-    udpConnectionGyroZ.setValueMapShape  ( *gyroMappingShapeParameter  );
+    // Response Map
+    udpConnectionAccelX.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
+    udpConnectionAccelY.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
+    udpConnectionAccelZ.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
+    udpConnectionGyroX.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex()  );
+    udpConnectionGyroY.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex()  );
+    udpConnectionGyroZ.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex()  );
     
     // Zero or Reset axis orientation
-    if (*zeroAccelXValuesParameter != 0.0f)
-    {
-        if (*zeroAccelXValuesParameter == 1.0f)
-        {
-            udpConnectionAccelX.zeroOrientation();
-        }
-        else
-        {
-            udpConnectionAccelX.resetOrientation();
-        }
-    }
+    orientationZeroing( zeroXBox, udpConnectionAccelX );
+    orientationZeroing( zeroYBox, udpConnectionAccelY );
+    orientationZeroing( zeroZBox, udpConnectionAccelZ );
     
-    if (*zeroAccelYValuesParameter != 0.0f)
-    {
-        if (*zeroAccelYValuesParameter == 1.0f)
-        {
-            udpConnectionAccelY.zeroOrientation();
-        }
-        else
-        {
-            udpConnectionAccelY.resetOrientation();
-        }
-    }
-    
-    if (*zeroAccelZValuesParameter != 0.0f)
-    {
-        if (*zeroAccelZValuesParameter == 1.0f)
-        {
-            udpConnectionAccelZ.zeroOrientation();
-        }
-        else
-        {
-            udpConnectionAccelZ.resetOrientation();
-        }
-    }
-    */
     // Read XYZ values from Arduio via UDP
     udpConnectionGyroX.readArduinoStream();
     udpConnectionGyroY.readArduinoStream();
@@ -164,9 +303,132 @@ void MasterExp1AudioProcessorEditor::timerCallback()
     udpConnectionAccelX.readArduinoStream();
     udpConnectionAccelY.readArduinoStream();
     udpConnectionAccelZ.readArduinoStream();
+    
+    // Get global on/off value from parameter tree
+    accelXOnOff = accelXBox.getSelectedItemIndex();
+    accelYOnOff = accelYBox.getSelectedItemIndex();
+    accelZOnOff = accelZBox.getSelectedItemIndex();
+    
+    gyroXOnOff = gyroXBox.getSelectedItemIndex();
+    gyroYOnOff = gyroYBox.getSelectedItemIndex();
+    gyroZOnOff = gyroZBox.getSelectedItemIndex();
+    
+    // Use Midi Learn Focus Parameter to solo individual values
+    // allowing Midi Learn to receive one value at a time
+    switch (midiLearnBox.getSelectedItemIndex())
+    {
+        case 0:
+            break;
+        // Midi Learn Accel X
+        case 1:
+            accelXOnOff = 1;
+            accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+            break;
+        // Midi Learn Accel Y
+        case 2:
+            accelYOnOff = 1;
+            accelXOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+            break;
+        // Midi Learn Accel Z
+        case 3:
+            accelZOnOff = 1;
+            accelXOnOff = accelYOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+            break;
+        // Midi Learn Gyro X
+        case 4:
+            gyroXOnOff = 1;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroYOnOff = gyroZOnOff = 0;
+            break;
+        // Midi Learn Gyro Y
+        case 5:
+            gyroYOnOff = 1;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroZOnOff = 0;
+            break;
+        // Midi Learn Gyro Z
+        case 6:
+            gyroZOnOff = 1;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = 0;
+            break;
+        default:
+            break;
+    }
+    //midiMessages.addEvent( MidiMessage::controllerEvent(<#int channel#>, <#int controllerType#>, <#int value#>), <#int sampleNumber#>)
+    
+    if (accelXOnOff)
+        accelXCCSlider.setValue ( udpConnectionAccelX.getCCValue() );
+    
+    if (accelYOnOff)
+        accelYCCSlider.setValue ( udpConnectionAccelY.getCCValue() );
+    
+    if (accelZOnOff)
+        accelZCCSlider.setValue ( udpConnectionAccelZ.getCCValue() );
+    
+    if (gyroXOnOff)
+        gyroXCCSlider.setValue ( udpConnectionGyroX.getCCValue() );
+    
+    if (gyroYOnOff)
+        gyroYCCSlider.setValue ( udpConnectionGyroY.getCCValue() );
+    
+    if (gyroXOnOff)
+        gyroXCCSlider.setValue ( udpConnectionGyroZ.getCCValue() );
+    
+    /*
+    // Sends Midi CC Value according to On/Off parameter and midiLearnFocusParameter logic
+    if (accelXOnOff == 1)
+    {
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 80, udpConnectionAccelX.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
+    }
+    
+    if (accelYOnOff == 1)
+    {
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 81, udpConnectionAccelY.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
+    }
+    
+    if (accelZOnOff == 1)
+    {
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 82, udpConnectionAccelZ.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
+    }
+    
+    if (gyroXOnOff == 1)
+    {
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 16, udpConnectionGyroZ.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
+    }
+    
+    if (gyroYOnOff == 1)
+    {
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 17, udpConnectionGyroY.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
+    }
+    
+    if (gyroZOnOff == 1)
+    {
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 18, udpConnectionGyroZ.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
+    }
+    */
 }
 
-
+/// Zeros the orientation to the current position of sensors
+void MasterExp1AudioProcessorEditor::orientationZeroing(ComboBox& box, UDPConnection& connection)
+{
+    switch (box.getSelectedItemIndex())
+    {
+        case 0:
+            break;
+        case 1:
+            connection.zeroOrientation();
+            break;
+        case 2:
+            connection.resetOrientation();
+            break;
+        default:
+            break;
+    }
+}
 
 
 /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
@@ -197,10 +459,10 @@ void MasterExp1AudioProcessorEditor::sliderSetup(Slider &sliderInstance, Slider:
 void MasterExp1AudioProcessorEditor::labelSetup(Label &labelInstance, String labelText, float fontSize)
 {
     labelInstance.setText              ( labelText, dontSendNotification );
-    labelInstance.setJustificationType ( Justification::centred );
+    labelInstance.setJustificationType ( Justification::centred          );
     labelInstance.setColour            ( Label::textColourId, orangePeel );
-    labelInstance.setFont              ( Font("helvetica", fontSize, 1) );
-    addAndMakeVisible                  ( labelInstance );
+    labelInstance.setFont              ( Font("helvetica", fontSize, 1)  );
+    addAndMakeVisible                  ( labelInstance                   );
 }
 
 
@@ -212,10 +474,10 @@ void MasterExp1AudioProcessorEditor::onOffBoxSetup(ComboBox &boxInstance)
     boxInstance.setJustificationType ( Justification::centred );
     boxInstance.setSelectedItemIndex ( 0 );
     
-    boxInstance.setColour ( ComboBox::backgroundColourId, onyx        );
-    boxInstance.setColour ( ComboBox::outlineColourId, lightSlateGray );
-    boxInstance.setColour ( ComboBox::textColourId, orangePeel        );
-    boxInstance.setColour ( ComboBox::arrowColourId, magicMint        );
+    boxInstance.setColour ( ComboBox::backgroundColourId, onyx           );
+    boxInstance.setColour ( ComboBox::outlineColourId,    lightSlateGray );
+    boxInstance.setColour ( ComboBox::textColourId,       magicMint      );
+    boxInstance.setColour ( ComboBox::arrowColourId,      magicMint      );
     
     addAndMakeVisible ( boxInstance );
 }
@@ -227,10 +489,10 @@ void MasterExp1AudioProcessorEditor::comboBoxSetup(ComboBox& boxInstance, String
     boxInstance.setJustificationType ( Justification::centred );
     boxInstance.setSelectedId        ( 0                      );
     
-    boxInstance.setColour ( ComboBox::backgroundColourId, onyx        );
-    boxInstance.setColour ( ComboBox::outlineColourId, lightSlateGray );
-    boxInstance.setColour ( ComboBox::textColourId, orangePeel        );
-    boxInstance.setColour ( ComboBox::arrowColourId, magicMint        );
+    boxInstance.setColour ( ComboBox::backgroundColourId, onyx           );
+    boxInstance.setColour ( ComboBox::outlineColourId,    lightSlateGray );
+    boxInstance.setColour ( ComboBox::textColourId,       magicMint      );
+    boxInstance.setColour ( ComboBox::arrowColourId,      magicMint      );
     
     addAndMakeVisible ( boxInstance );
 }

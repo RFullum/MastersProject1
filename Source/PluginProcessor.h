@@ -18,7 +18,6 @@
 #include "FrequencyCalculation.h"
 #include "FrequencyToMidi.h"
 #include "MidiDataCalculations.h"
-#include "UDPConnection.h"
 
 
 //==============================================================================
@@ -67,6 +66,7 @@ public:
     // APVTS
     AudioProcessorValueTreeState parameters;
     
+    
 private:
     // Header file class instances
     WaveClipper waveClipper;
@@ -87,14 +87,6 @@ private:
     int midiChannel;    // 1 for ease of use. Can make selectable parameter in future versions
     
     bool triggerNewNote;
-    
-    bool gyroXOnOff;
-    bool gyroYOnOff;
-    bool gyroZOnOff;
-    
-    bool accelXOnOff;
-    bool accelYOnOff;
-    bool accelZOnOff;
     
     // Parameter tree variables
     std::atomic<float>* gateThresholdParam;
@@ -122,20 +114,20 @@ private:
     std::atomic<float>* zeroAccelYValuesParameter;
     std::atomic<float>* zeroAccelZValuesParameter;
     
-    // UDP
-    UDPConnection udpConnectionGyroX;
-    UDPConnection udpConnectionGyroY;
-    UDPConnection udpConnectionGyroZ;
-    UDPConnection udpConnectionAccelX;
-    UDPConnection udpConnectionAccelY;
-    UDPConnection udpConnectionAccelZ;
+    // Invisible Parameter tree variables
+    std::atomic<float>* accelXCCValParameter;
+    std::atomic<float>* accelYCCValParameter;
+    std::atomic<float>* accelZCCValParameter;
+    std::atomic<float>* gyroXCCValParameter;
+    std::atomic<float>* gyroYCCValParameter;
+    std::atomic<float>* gyroZCCValParameter;
     
-    int udpPortGyroX;
-    int udpPortGyroY;
-    int udpPortGyroZ;
-    int udpPortAccelX;
-    int udpPortAccelY;
-    int udpPortAccelZ;
+    float prevAccelXCC;
+    float prevAccelYCC;
+    float prevAccelZCC;
+    float prevGyroXCC;
+    float prevGyroYCC;
+    float prevGyroZCC;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MasterExp1AudioProcessor)

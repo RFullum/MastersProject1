@@ -41,6 +41,9 @@ private:
     /// Sets up a combo box
     void comboBoxSetup(ComboBox& boxInstance, StringArray& itemArray);
     
+    /// Zeros the orientation to the current position of sensors
+    void orientationZeroing(ComboBox& box, UDPConnection& connection);
+    
     // Sliders
     Slider inGainSlider;
     Slider gateThresholdSlider;
@@ -82,8 +85,44 @@ private:
     Label zeroYLabel;
     Label zeroZLabel;
     
+    // Invisible Slider
+    Slider accelXCCSlider;
+    Slider accelYCCSlider;
+    Slider accelZCCSlider;
     
-    // UDP
+    Slider gyroXCCSlider;
+    Slider gyroYCCSlider;
+    Slider gyroZCCSlider;
+    
+    // Attachments
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>  inGainAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>  gateThresholdAttach;
+    
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> accelXAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> accelYAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> accelZAttach;
+    
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> gyroXAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> gyroYAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> gyroZAttach;
+    
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> midiLearnAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> accelShapeAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> gyroShapeAttach;
+    
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> zeroXAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> zeroYAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> zeroZAttach;
+    
+    // Invisible Attachments
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> accelXCCAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> accelYCCAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> accelZCCAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> gyroXCCAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> gyroYCCAttach;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> gyroZCCAttach;
+    
+    // UDP & IMU
     UDPConnection udpConnectionGyroX;
     UDPConnection udpConnectionGyroY;
     UDPConnection udpConnectionGyroZ;
@@ -98,12 +137,25 @@ private:
     int udpPortAccelY;
     int udpPortAccelZ;
     
+    bool accelXOnOff;
+    bool accelYOnOff;
+    bool accelZOnOff;
+    
+    bool gyroXOnOff;
+    bool gyroYOnOff;
+    bool gyroZOnOff;
+    
     // Colors
     Colour onyx;
     Colour lightSlateGray;
     Colour magicMint;
     Colour fieryRose;
     Colour orangePeel;
+    
+    // Background Rectangles
+    Rectangle<float> sliderAreaInner;
+    Rectangle<float> onOffAreaInner;
+    Rectangle<float> utilityAreaInner;
     
     MasterExp1AudioProcessor& processor;
 
