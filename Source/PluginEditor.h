@@ -12,7 +12,8 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "UDPConnection.h"
+#include "OSCHandler.h"
+#include "ArduinoToMidiCC.h"
 
 //==============================================================================
 /**
@@ -42,7 +43,7 @@ private:
     void comboBoxSetup(ComboBox& boxInstance, StringArray& itemArray);
     
     /// Zeros the orientation to the current position of sensors
-    void orientationZeroing(ComboBox& box, UDPConnection& connection);
+    void orientationZeroing(ComboBox& box, ArduinoToMidiCC& imuAxis, float imuVal);
     
     // Sliders
     Slider inGainSlider;
@@ -85,7 +86,7 @@ private:
     Label zeroYLabel;
     Label zeroZLabel;
     
-    // Invisible Slider
+    // Invisible Slider (Backend to get IMU Midi Values to the MidiMessage Buffer)
     Slider accelXCCSlider;
     Slider accelYCCSlider;
     Slider accelZCCSlider;
@@ -114,7 +115,7 @@ private:
     std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> zeroYAttach;
     std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> zeroZAttach;
     
-    // Invisible Attachments
+    // Invisible Attachments (Backend to get IMU Midi Values to the MidiMessage Buffer)
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> accelXCCAttach;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> accelYCCAttach;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> accelZCCAttach;
@@ -122,21 +123,17 @@ private:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> gyroYCCAttach;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> gyroZCCAttach;
     
-    // UDP & IMU
-    UDPConnection udpConnectionGyroX;
-    UDPConnection udpConnectionGyroY;
-    UDPConnection udpConnectionGyroZ;
-    UDPConnection udpConnectionAccelX;
-    UDPConnection udpConnectionAccelY;
-    UDPConnection udpConnectionAccelZ;
+    // OSC
+    ArduinoReceiverOSC ardOSC;
+    ArduinoToMidiCC ardAccelX;
+    ArduinoToMidiCC ardAccelY;
+    ArduinoToMidiCC ardAccelZ;
+    ArduinoToMidiCC ardGyroX;
+    ArduinoToMidiCC ardGyroY;
+    ArduinoToMidiCC ardGyroZ;
     
-    int udpPortGyroX;
-    int udpPortGyroY;
-    int udpPortGyroZ;
-    int udpPortAccelX;
-    int udpPortAccelY;
-    int udpPortAccelZ;
     
+    // IMU   
     bool accelXOnOff;
     bool accelYOnOff;
     bool accelZOnOff;

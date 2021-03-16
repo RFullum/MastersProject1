@@ -15,14 +15,6 @@
 MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioProcessor& p)
     : AudioProcessorEditor (&p),
 
-      udpPortGyroX(65013),
-      udpPortGyroY(65014),
-      udpPortGyroZ(65015),
-
-      udpPortAccelX(65016),
-      udpPortAccelY(65017),
-      udpPortAccelZ(65018),
-
       accelXOnOff(false),
       accelYOnOff(false),
       accelZOnOff(false),
@@ -44,14 +36,6 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
     // Timer
     Timer::startTimerHz(60);
     
-    // UDP Setup: connects to UDP Ports for each instance
-    udpConnectionGyroX.udpPortConnect  ( udpPortGyroX  );
-    udpConnectionGyroY.udpPortConnect  ( udpPortGyroY  );
-    udpConnectionGyroZ.udpPortConnect  ( udpPortGyroZ  );
-    udpConnectionAccelX.udpPortConnect ( udpPortAccelX );
-    udpConnectionAccelY.udpPortConnect ( udpPortAccelY );
-    udpConnectionAccelZ.udpPortConnect ( udpPortAccelZ );
-    
     // Slider Setup
     Slider::SliderStyle vertSlider = Slider::SliderStyle::LinearVertical;
     
@@ -59,6 +43,7 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
     sliderSetup ( gateThresholdSlider, vertSlider, true );
     
     // Invisible Slider Setup
+    // (Backend to get IMU Midi Values to the MidiMessage Buffer)
     sliderSetup ( accelXCCSlider, vertSlider, false );
     sliderSetup ( accelYCCSlider, vertSlider, false );
     sliderSetup ( accelZCCSlider, vertSlider, false );
@@ -126,7 +111,7 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
     zeroYAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "zeroAccelYOrientation", zeroYBox );
     zeroZAttach = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> ( processor.parameters, "zeroAccelZOrientation", zeroZBox );
     
-    // Invisible Attachments
+    // Invisible Attachments (Backend to get IMU Midi Values to the MidiMessage Buffer)
     accelXCCAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "accelXCC", accelXCCSlider );
     accelYCCAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "accelYCC", accelYCCSlider );
     accelZCCAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "accelZCC", accelZCCSlider );
@@ -134,6 +119,14 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
     gyroYCCAttach  = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "gyroYCC",  gyroYCCSlider  );
     gyroZCCAttach  = std::make_unique<AudioProcessorValueTreeState::SliderAttachment> ( processor.parameters, "gyroZCC",  gyroZCCSlider  );
     
+    
+    // OSC
+    ardAccelX.setIMUType ( ArduinoToMidiCC::ImuType::Accel );
+    ardAccelY.setIMUType ( ArduinoToMidiCC::ImuType::Accel );
+    ardAccelZ.setIMUType ( ArduinoToMidiCC::ImuType::Accel );
+    ardGyroX.setIMUType  ( ArduinoToMidiCC::ImuType::Gyro  );
+    ardGyroY.setIMUType  ( ArduinoToMidiCC::ImuType::Gyro  );
+    ardGyroZ.setIMUType  ( ArduinoToMidiCC::ImuType::Gyro  );
 }
 
 MasterExp1AudioProcessorEditor::~MasterExp1AudioProcessorEditor()
@@ -284,25 +277,18 @@ void MasterExp1AudioProcessorEditor::resized()
 void MasterExp1AudioProcessorEditor::timerCallback()
 {
     // Response Map
-    udpConnectionAccelX.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
-    udpConnectionAccelY.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
-    udpConnectionAccelZ.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
-    udpConnectionGyroX.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex()  );
-    udpConnectionGyroY.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex()  );
-    udpConnectionGyroZ.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex()  );
+    ardAccelX.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
+    ardAccelY.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
+    ardAccelZ.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
+    ardGyroX.setValueMapShape  ( accelShapeBox.getSelectedItemIndex() );
+    ardGyroY.setValueMapShape  ( accelShapeBox.getSelectedItemIndex() );
+    ardGyroZ.setValueMapShape  ( accelShapeBox.getSelectedItemIndex() );
+    
     
     // Zero or Reset axis orientation
-    orientationZeroing( zeroXBox, udpConnectionAccelX );
-    orientationZeroing( zeroYBox, udpConnectionAccelY );
-    orientationZeroing( zeroZBox, udpConnectionAccelZ );
-    
-    // Read XYZ values from Arduio via UDP
-    udpConnectionGyroX.readArduinoStream();
-    udpConnectionGyroY.readArduinoStream();
-    udpConnectionGyroZ.readArduinoStream();
-    udpConnectionAccelX.readArduinoStream();
-    udpConnectionAccelY.readArduinoStream();
-    udpConnectionAccelZ.readArduinoStream();
+    orientationZeroing ( zeroXBox, ardAccelX, ardOSC.getAccelX() );
+    orientationZeroing ( zeroYBox, ardAccelY, ardOSC.getAccelY() );
+    orientationZeroing ( zeroZBox, ardAccelZ, ardOSC.getAccelZ() );
     
     // Get global on/off value from parameter tree
     accelXOnOff = accelXBox.getSelectedItemIndex();
@@ -352,78 +338,39 @@ void MasterExp1AudioProcessorEditor::timerCallback()
         default:
             break;
     }
-    //midiMessages.addEvent( MidiMessage::controllerEvent(<#int channel#>, <#int controllerType#>, <#int value#>), <#int sampleNumber#>)
+    
     
     if (accelXOnOff)
-        accelXCCSlider.setValue ( udpConnectionAccelX.getCCValue() );
+        accelXCCSlider.setValue ( ardAccelX.getCCValue( ardOSC.getAccelX() ) );
     
     if (accelYOnOff)
-        accelYCCSlider.setValue ( udpConnectionAccelY.getCCValue() );
+        accelYCCSlider.setValue ( ardAccelY.getCCValue( ardOSC.getAccelY() ) );
     
     if (accelZOnOff)
-        accelZCCSlider.setValue ( udpConnectionAccelZ.getCCValue() );
+        accelZCCSlider.setValue ( ardAccelZ.getCCValue( ardOSC.getAccelZ() ) );
     
     if (gyroXOnOff)
-        gyroXCCSlider.setValue ( udpConnectionGyroX.getCCValue() );
+        gyroXCCSlider.setValue ( ardGyroX.getCCValue( ardOSC.getGyroX() ) );
     
     if (gyroYOnOff)
-        gyroYCCSlider.setValue ( udpConnectionGyroY.getCCValue() );
+        gyroYCCSlider.setValue ( ardGyroY.getCCValue( ardOSC.getGyroY() ) );
     
     if (gyroXOnOff)
-        gyroXCCSlider.setValue ( udpConnectionGyroZ.getCCValue() );
-    
-    /*
-    // Sends Midi CC Value according to On/Off parameter and midiLearnFocusParameter logic
-    if (accelXOnOff == 1)
-    {
-        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 80, udpConnectionAccelX.getCCValue() ),
-                                midiMessages.getLastEventTime() + 1 );
-    }
-    
-    if (accelYOnOff == 1)
-    {
-        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 81, udpConnectionAccelY.getCCValue() ),
-                                midiMessages.getLastEventTime() + 1 );
-    }
-    
-    if (accelZOnOff == 1)
-    {
-        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 82, udpConnectionAccelZ.getCCValue() ),
-                                midiMessages.getLastEventTime() + 1 );
-    }
-    
-    if (gyroXOnOff == 1)
-    {
-        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 16, udpConnectionGyroZ.getCCValue() ),
-                                midiMessages.getLastEventTime() + 1 );
-    }
-    
-    if (gyroYOnOff == 1)
-    {
-        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 17, udpConnectionGyroY.getCCValue() ),
-                                midiMessages.getLastEventTime() + 1 );
-    }
-    
-    if (gyroZOnOff == 1)
-    {
-        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 18, udpConnectionGyroZ.getCCValue() ),
-                                midiMessages.getLastEventTime() + 1 );
-    }
-    */
+        gyroXCCSlider.setValue ( ardGyroZ.getCCValue( ardOSC.getGyroZ() ) );
 }
 
 /// Zeros the orientation to the current position of sensors
-void MasterExp1AudioProcessorEditor::orientationZeroing(ComboBox& box, UDPConnection& connection)
+void MasterExp1AudioProcessorEditor::orientationZeroing(ComboBox& box,  ArduinoToMidiCC& imuAxis, float imuVal)
 {
     switch (box.getSelectedItemIndex())
     {
         case 0:
             break;
         case 1:
-            connection.zeroOrientation();
+            imuAxis.zeroOrientation( imuVal );
             break;
         case 2:
-            connection.resetOrientation();
+            imuAxis.resetOrientation();
             break;
         default:
             break;
@@ -496,12 +443,4 @@ void MasterExp1AudioProcessorEditor::comboBoxSetup(ComboBox& boxInstance, String
     
     addAndMakeVisible ( boxInstance );
 }
-
-//
-//
-// PluginProcessor::processBlock() needs to communicate with this
-// to replace udpConnection####.getCCValue() in the midiMessages section
-//
-//
-
 

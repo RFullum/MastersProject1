@@ -25,9 +25,6 @@
             file="Source/MidiDataCalculations.h"/>
       <FILE id="yLozsf" name="NoiseGate.cpp" compile="1" resource="0" file="Source/NoiseGate.cpp"/>
       <FILE id="TFIsuf" name="NoiseGate.h" compile="0" resource="0" file="Source/NoiseGate.h"/>
-      <FILE id="UriYlP" name="UDPConnection.cpp" compile="1" resource="0"
-            file="Source/UDPConnection.cpp"/>
-      <FILE id="IFn4Sx" name="UDPConnection.h" compile="0" resource="0" file="Source/UDPConnection.h"/>
       <FILE id="UBgOkq" name="WaveClipper.cpp" compile="1" resource="0" file="Source/WaveClipper.cpp"/>
       <FILE id="Km5Wvq" name="WaveClipper.h" compile="0" resource="0" file="Source/WaveClipper.h"/>
       <FILE id="jreQsv" name="ZeroCrossingCounter.cpp" compile="1" resource="0"
@@ -37,6 +34,12 @@
       <FILE id="ptH3kY" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="rX1M3S" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="dDowp3" name="OSCHandler.cpp" compile="1" resource="0" file="Source/OSCHandler.cpp"/>
+      <FILE id="X7ahfw" name="OSCHandler.h" compile="0" resource="0" file="Source/OSCHandler.h"/>
+      <FILE id="GKBxbo" name="ArduinoToMidiCC.cpp" compile="1" resource="0"
+            file="Source/ArduinoToMidiCC.cpp"/>
+      <FILE id="J0TFKS" name="ArduinoToMidiCC.h" compile="0" resource="0"
+            file="Source/ArduinoToMidiCC.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
@@ -60,6 +63,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../../../../Users/Prophetnoise/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../../../Users/Prophetnoise/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../../../../../../Users/Prophetnoise/JUCE/modules"/>
+        <MODULEPATH id="juce_osc" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2019 targetFolder="Builds/VisualStudio2019">
@@ -82,6 +86,7 @@
         <MODULEPATH id="juce_audio_formats"/>
         <MODULEPATH id="juce_audio_devices"/>
         <MODULEPATH id="juce_audio_basics"/>
+        <MODULEPATH id="juce_osc" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </VS2019>
     <CODEBLOCKS_LINUX targetFolder="Builds/CodeBlocksLinux">
@@ -104,6 +109,7 @@
         <MODULEPATH id="juce_audio_formats"/>
         <MODULEPATH id="juce_audio_devices"/>
         <MODULEPATH id="juce_audio_basics"/>
+        <MODULEPATH id="juce_osc" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </CODEBLOCKS_LINUX>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
@@ -126,6 +132,7 @@
         <MODULEPATH id="juce_audio_formats"/>
         <MODULEPATH id="juce_audio_devices"/>
         <MODULEPATH id="juce_audio_basics"/>
+        <MODULEPATH id="juce_osc" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
@@ -145,6 +152,7 @@
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_osc" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <LIVE_SETTINGS>
     <OSX/>

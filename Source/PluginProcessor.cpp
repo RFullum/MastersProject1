@@ -136,7 +136,7 @@ prevGyroZCC(0.0f)
     accelZCCValParameter = parameters.getRawParameterValue ( "accelZCC" );
     gyroXCCValParameter  = parameters.getRawParameterValue ( "gyroXCC"  );
     gyroYCCValParameter  = parameters.getRawParameterValue ( "gyroYCC"  );
-    gyroYCCValParameter  = parameters.getRawParameterValue ( "gyroZCC"  );
+    gyroZCCValParameter  = parameters.getRawParameterValue ( "gyroZCC"  );
 }
 
 MasterExp1AudioProcessor::~MasterExp1AudioProcessor()
