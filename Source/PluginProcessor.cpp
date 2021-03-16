@@ -39,7 +39,7 @@ MasterExp1AudioProcessor::MasterExp1AudioProcessor()
 //
 parameters(*this, nullptr, "ParameterTree", {
     std::make_unique<AudioParameterFloat> ( "input_gain", "Input Gain",
-                                            NormalisableRange<float>(0.1f, 10.0f, 0.1f, 1.0f, false), 4.25, "gain" ),
+                                            NormalisableRange<float>(0.1f, 10.0f, 0.01f, 1.0f, false), 4.25, "gain" ),
     std::make_unique<AudioParameterFloat> ( "gate_threshold", "Gate Threshold",
                                             NormalisableRange<float>(0.0f, 1.0f, 0.01f, 1.0f, false), 0.01f, "gate" ),
     
@@ -477,6 +477,7 @@ bool MasterExp1AudioProcessor::hasEditor() const
 
 AudioProcessorEditor* MasterExp1AudioProcessor::createEditor()
 {
+    //return new MasterExp1AudioProcessorEditor (*this);
     return new GenericAudioProcessorEditor (*this);
 }
 
