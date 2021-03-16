@@ -104,55 +104,55 @@ int UDPConnection::getGyroCC()
 {
     int ccGyro = 0;
     
-    // Linear Map
-    if (mappingShape == 0)
+    float gyroMapLog = 0.0f;
+    float gyroMapExp = 0.0f;
+    
+    switch ((int)mappingShape)
     {
-        ccGyro = jmap( *recastValueFloat, -2000.0f, 2000.0f, 0.0f, 127.0f );
-    }
-    // Log map
-    else if (mappingShape == 1)
-    {
-        float gyroMapLog = log  ( jmap( *recastValueFloat, -2000.0f, 2000.0f, 1.0f, MathConstants<float>::euler ) );
-        ccGyro           = jmap ( gyroMapLog, 0.0f, 1.0f, 0.0f, 127.0f );
-    }
-    // Exponential map
-    else if (mappingShape == 2)
-    {
-        float gyroMapExp = pow  ( jmap( *recastValueFloat, -2000.0f, 2000.0f, 0.0f, 1.0f ), 2 );
-        ccGyro           = jmap ( gyroMapExp, 0.0f, 1.0f, 0.0f, 127.0f );
-    }
-    // Log 0-64, exp 64-127
-    else if (mappingShape == 3)
-    {
-        if (*recastValueFloat < 0.0f)
-        {
-            float gyroMapLog = log  ( jmap(*recastValueFloat, -2000.0f, 0.0f, 1.0f, MathConstants<float>::euler ) );
-            ccGyro           = jmap ( gyroMapLog, 0.0f, 1.0f, 0.0f, 64.0f );
-        }
-        else
-        {
-            float gyroMapExp = pow  ( jmap( *recastValueFloat, 0.0f, 2000.0f, 0.0f, 1.0f ), 2 );
-            ccGyro           = jmap ( gyroMapExp, 0.0f, 1.0f, 64.0f, 127.0f );
-        }
-    }
-    // Exp 0-64, log 64-127
-    else if (mappingShape == 4)
-    {
-        if (*recastValueFloat < 0.0f)
-        {
-            float gyroMapExp = pow  ( jmap( *recastValueFloat, -2000.0f, 0.0f, 0.0f, 1.0f ), 2 );
-            ccGyro           = jmap ( gyroMapExp, 0.0f, 1.0f, 0.0f, 64.0f );
-        }
-        else
-        {
-            float gyroMapLog = log  ( jmap( *recastValueFloat, 0.0f, 2000.0f, 1.0f, MathConstants<float>::euler ) );
-            ccGyro           = jmap ( gyroMapLog, 0.0f, 1.0f, 64.0f, 127.0f );
-        }
-    }
-    // Catch any erroneous values and set to linear as a safety net
-    else
-    {
-        ccGyro = jmap( *recastValueFloat, -2000.0f, 2000.0f, 0.0f, 127.0f );
+        // Linear Map
+        case 0:
+            ccGyro = jmap( *recastValueFloat, -2000.0f, 2000.0f, 0.0f, 127.0f );
+            break;
+        // Log map
+        case 1:
+            gyroMapLog = log  ( jmap( *recastValueFloat, -2000.0f, 2000.0f, 1.0f, MathConstants<float>::euler ) );
+            ccGyro     = jmap ( gyroMapLog, 0.0f, 1.0f, 0.0f, 127.0f );
+            break;
+        // Exponential map
+        case 2:
+            gyroMapExp = pow  ( jmap( *recastValueFloat, -2000.0f, 2000.0f, 0.0f, 1.0f ), 2 );
+            ccGyro     = jmap ( gyroMapExp, 0.0f, 1.0f, 0.0f, 127.0f );
+            break;
+        // Log 0-64, exp 64-127
+        case 3:
+            if (*recastValueFloat < 0.0f)
+            {
+                gyroMapLog = log  ( jmap(*recastValueFloat, -2000.0f, 0.0f, 1.0f, MathConstants<float>::euler ) );
+                ccGyro     = jmap ( gyroMapLog, 0.0f, 1.0f, 0.0f, 64.0f );
+            }
+            else
+            {
+                gyroMapExp = pow  ( jmap( *recastValueFloat, 0.0f, 2000.0f, 0.0f, 1.0f ), 2 );
+                ccGyro     = jmap ( gyroMapExp, 0.0f, 1.0f, 64.0f, 127.0f );
+            }
+            break;
+        // Exp 0-64, log 64-127
+        case 4:
+            if (*recastValueFloat < 0.0f)
+            {
+                gyroMapExp = pow  ( jmap( *recastValueFloat, -2000.0f, 0.0f, 0.0f, 1.0f ), 2 );
+                ccGyro     = jmap ( gyroMapExp, 0.0f, 1.0f, 0.0f, 64.0f );
+            }
+            else
+            {
+                gyroMapLog = log  ( jmap( *recastValueFloat, 0.0f, 2000.0f, 1.0f, MathConstants<float>::euler ) );
+                ccGyro     = jmap ( gyroMapLog, 0.0f, 1.0f, 64.0f, 127.0f );
+            }
+            break;
+        // Catch any erroneous values and set to linear as a safety net
+        default:
+            ccGyro = jmap( *recastValueFloat, -2000.0f, 2000.0f, 0.0f, 127.0f );
+            break;
     }
     
     return ccGyro;
@@ -168,59 +168,60 @@ down decreases the value without orientation change.
 int UDPConnection::getAccelCC()
 {
     int ccAccel = 0;
+    
+    float accelMapLog = 0.0f;
+    float accelMapExp = 0.0f;
+    
     zeroOrientationRemap();
     
-    // Linear map
-    if (mappingShape == 0)
+    switch ((int)mappingShape)
     {
-        ccAccel = jmap( accelOffsetRemap, -4.0f, 4.0f, 0.0f, 127.0f );
+        // Linear map
+        case 0:
+            ccAccel = jmap( accelOffsetRemap, -4.0f, 4.0f, 0.0f, 127.0f );
+            break;
+        // Logarithmic map
+        case 1:
+            accelMapLog = log  ( jmap( accelOffsetRemap, -4.0f, 4.0f, 1.0f, MathConstants<float>::euler ) );
+            ccAccel     = jmap ( accelMapLog, 0.0f, 1.0f, 0.0f, 127.0f );
+            break;
+        // Exponential map
+        case 2:
+            accelMapExp = pow  ( jmap( accelOffsetRemap, -4.0f, 4.0f, 0.0f, 1.0f ), 2 );
+            ccAccel     = jmap ( accelMapExp, 0.0f, 1.0f, 0.0f, 127.0f );
+            break;
+        // Log 0-64, exp 64-127
+        case 3:
+            if (accelOffsetRemap < 0.0f)
+            {
+                accelMapLog = log  ( jmap( accelOffsetRemap, -4.0f, 0.0f, 1.0f, MathConstants<float>::euler ) );
+                ccAccel     = jmap (accelMapLog, 0.0f, 1.0f, 0.0f, 64.0f );
+            }
+            else
+            {
+                accelMapExp = pow  ( jmap( accelOffsetRemap, 0.0f, 4.0f, 0.0f, 1.0f ), 2 );
+                ccAccel     = jmap ( accelMapExp, 0.0f, 1.0f, 64.0f, 127.0f );
+            }
+            break;
+        // Exp 0-64, log 64-127
+        case 4:
+            if (accelOffsetRemap < 0.0f)
+            {
+                accelMapExp = pow  ( jmap( accelOffsetRemap, -4.0f, 0.0f, 0.0f, 1.0f ), 2 );
+                ccAccel     = jmap ( accelMapExp, 0.0f, 1.0f, 0.0f, 64.0f );
+            }
+            else
+            {
+                accelMapLog = log  ( jmap( accelOffsetRemap, 0.0f, 4.0f, 1.0f, MathConstants<float>::euler ) );
+                ccAccel     = jmap ( accelMapLog, 0.0f, 1.0f, 64.0f, 127.0f );
+            }
+            break;
+        // Catch any erroneous values and set to linear as a safety net
+        default:
+            ccAccel = jmap( accelOffsetRemap, -4.0f, 4.0f, 0.0f, 127.0f );
+            break;
     }
-    // Logarithmic map
-    else if (mappingShape == 1)
-    {
-        float accelMapLog = log  ( jmap( accelOffsetRemap, -4.0f, 4.0f, 1.0f, MathConstants<float>::euler ) );
-        ccAccel           = jmap ( accelMapLog, 0.0f, 1.0f, 0.0f, 127.0f );
-    }
-    // Exponential map
-    else if (mappingShape == 2)
-    {
-        float accelMapExp = pow  ( jmap( accelOffsetRemap, -4.0f, 4.0f, 0.0f, 1.0f ), 2 );
-        ccAccel           = jmap ( accelMapExp, 0.0f, 1.0f, 0.0f, 127.0f );
-    }
-    // Log 0-64, exp 64-127
-    else if (mappingShape == 3)
-    {
-        if (accelOffsetRemap < 0.0f)
-        {
-            float accelMapLog = log  ( jmap( accelOffsetRemap, -4.0f, 0.0f, 1.0f, MathConstants<float>::euler ) );
-            ccAccel           = jmap (accelMapLog, 0.0f, 1.0f, 0.0f, 64.0f );
-        }
-        else
-        {
-            float accelMapExp = pow  ( jmap( accelOffsetRemap, 0.0f, 4.0f, 0.0f, 1.0f ), 2 );
-            ccAccel           = jmap ( accelMapExp, 0.0f, 1.0f, 64.0f, 127.0f );
-        }
-    }
-    // Exp 0-64, log 64-127
-    else if (mappingShape == 4)
-    {
-        if (accelOffsetRemap < 0.0f)
-        {
-            float accelMapExp = pow  ( jmap( accelOffsetRemap, -4.0f, 0.0f, 0.0f, 1.0f ), 2 );
-            ccAccel           = jmap ( accelMapExp, 0.0f, 1.0f, 0.0f, 64.0f );
-        }
-        else
-        {
-            float accelMapLog = log  ( jmap( accelOffsetRemap, 0.0f, 4.0f, 1.0f, MathConstants<float>::euler ) );
-            ccAccel           = jmap ( accelMapLog, 0.0f, 1.0f, 64.0f, 127.0f );
-        }
-    }
-    // Catch any erroneous values and set to linear as a safety net
-    else
-    {
-        ccAccel = jmap( accelOffsetRemap, -4.0f, 4.0f, 0.0f, 127.0f );
-    }
-        
+    
     return ccAccel;
 }
 

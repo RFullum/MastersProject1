@@ -64,6 +64,9 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    // APVTS
+    AudioProcessorValueTreeState parameters;
+    
 private:
     // Header file class instances
     WaveClipper waveClipper;
@@ -79,23 +82,21 @@ private:
     float currentLevel;     // Level of audio
     float noteVelocity;
     
-    int currentMidiNoteNumber = 0;
-    int previousMidiNoteNumber = 0;
-    int midiChannel = 1;    // 1 for ease of use. Can make selectable parameter in future versions
+    int currentMidiNoteNumber;
+    int previousMidiNoteNumber;
+    int midiChannel;    // 1 for ease of use. Can make selectable parameter in future versions
     
-    bool triggerNewNote = false;
+    bool triggerNewNote;
     
-    bool gyroXOnOff = false;
-    bool gyroYOnOff = false;
-    bool gyroZOnOff = false;
+    bool gyroXOnOff;
+    bool gyroYOnOff;
+    bool gyroZOnOff;
     
-    bool accelXOnOff = false;
-    bool accelYOnOff = false;
-    bool accelZOnOff = false;
+    bool accelXOnOff;
+    bool accelYOnOff;
+    bool accelZOnOff;
     
     // Parameter tree variables
-    AudioProcessorValueTreeState parameters;
-    
     std::atomic<float>* gateThresholdParam;
     std::atomic<float>* inputGainParam;
     
@@ -128,12 +129,13 @@ private:
     UDPConnection udpConnectionAccelX;
     UDPConnection udpConnectionAccelY;
     UDPConnection udpConnectionAccelZ;
-    int udpPortGyroX = 65013;
-    int udpPortGyroY = 65014;
-    int udpPortGyroZ = 65015;
-    int udpPortAccelX = 65016;
-    int udpPortAccelY = 65017;
-    int udpPortAccelZ = 65018;
+    
+    int udpPortGyroX;
+    int udpPortGyroY;
+    int udpPortGyroZ;
+    int udpPortAccelX;
+    int udpPortAccelY;
+    int udpPortAccelZ;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MasterExp1AudioProcessor)

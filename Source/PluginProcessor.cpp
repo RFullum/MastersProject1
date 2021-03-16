@@ -53,28 +53,54 @@ parameters(*this, nullptr, "ParameterTree", {
     std::make_unique<AudioParameterChoice>("zeroAccelXOrientation", "Zero X Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0),
     std::make_unique<AudioParameterChoice>("zeroAccelYOrientation", "Zero Y Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0),
     std::make_unique<AudioParameterChoice>("zeroAccelZOrientation", "Zero Z Orientation", StringArray({"Active", "Set Orientation", "Reset"}), 0)
-})
+}),
+
+freq(0.0f),
+currentLevel(0.0f),
+noteVelocity(0.0f),
+
+currentMidiNoteNumber(0),
+previousMidiNoteNumber(0),
+midiChannel(1),
+
+triggerNewNote(false),
+
+gyroXOnOff(false),
+gyroYOnOff(false),
+gyroZOnOff(false),
+
+accelXOnOff(false),
+accelYOnOff(false),
+accelZOnOff(false),
+
+udpPortGyroX(65013),
+udpPortGyroY(65014),
+udpPortGyroZ(65015),
+
+udpPortAccelX(65016),
+udpPortAccelY(65017),
+udpPortAccelZ(65018)
 
 {
     // Param Construct
-    inputGainParam = parameters.getRawParameterValue("input_gain");
-    gateThresholdParam = parameters.getRawParameterValue("gate_threshold");
+    inputGainParam     = parameters.getRawParameterValue ( "input_gain"     );
+    gateThresholdParam = parameters.getRawParameterValue ( "gate_threshold" );
     
-    accelXOnOffParameter = parameters.getRawParameterValue("accelXOnOff");
-    accelYOnOffParameter = parameters.getRawParameterValue("accelYOnOff");
-    accelZOnOffParameter = parameters.getRawParameterValue("accelZOnOff");
+    accelXOnOffParameter = parameters.getRawParameterValue ( "accelXOnOff" );
+    accelYOnOffParameter = parameters.getRawParameterValue ( "accelYOnOff" );
+    accelZOnOffParameter = parameters.getRawParameterValue ( "accelZOnOff" );
     
-    gyroXOnOffParameter = parameters.getRawParameterValue("gyroXOnOff");
-    gyroYOnOffParameter = parameters.getRawParameterValue("gyroYOnOff");
-    gyroZOnOffParameter = parameters.getRawParameterValue("gyroZOnOff");
+    gyroXOnOffParameter = parameters.getRawParameterValue ( "gyroXOnOff" );
+    gyroYOnOffParameter = parameters.getRawParameterValue ( "gyroYOnOff" );
+    gyroZOnOffParameter = parameters.getRawParameterValue ( "gyroZOnOff" );
     
-    midiLearnFocusParameter = parameters.getRawParameterValue("midiLearnFocus");
-    accelMappingShapeParameter = parameters.getRawParameterValue("accelMapShape");
-    gyroMappingShapeParameter = parameters.getRawParameterValue("gyroMapShape");
+    midiLearnFocusParameter    = parameters.getRawParameterValue ( "midiLearnFocus" );
+    accelMappingShapeParameter = parameters.getRawParameterValue ( "accelMapShape"  );
+    gyroMappingShapeParameter  = parameters.getRawParameterValue ( "gyroMapShape"   );
     
-    zeroAccelXValuesParameter = parameters.getRawParameterValue("zeroAccelXOrientation");
-    zeroAccelYValuesParameter = parameters.getRawParameterValue("zeroAccelYOrientation");
-    zeroAccelZValuesParameter = parameters.getRawParameterValue("zeroAccelZOrientation");
+    zeroAccelXValuesParameter = parameters.getRawParameterValue ( "zeroAccelXOrientation" );
+    zeroAccelYValuesParameter = parameters.getRawParameterValue ( "zeroAccelYOrientation" );
+    zeroAccelZValuesParameter = parameters.getRawParameterValue ( "zeroAccelZOrientation" );
 }
 
 MasterExp1AudioProcessor::~MasterExp1AudioProcessor()
@@ -147,19 +173,19 @@ void MasterExp1AudioProcessor::changeProgramName (int index, const String& newNa
 void MasterExp1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Sets sampleRate for classes
-    bandLimiter.setSampleRate(sampleRate);
-    freqCalc.setSampleRate(sampleRate);
+    bandLimiter.setSampleRate ( sampleRate );
+    freqCalc.setSampleRate    ( sampleRate );
     
     // Sets frequency detection classes buffer size
-    zeroXing.setBuffer(sampleRate);
+    zeroXing.setBuffer ( sampleRate );
     
     // UDP Setup: connects to UDP Ports for each instance
-    udpConnectionGyroX.udpPortConnect(udpPortGyroX);
-    udpConnectionGyroY.udpPortConnect(udpPortGyroY);
-    udpConnectionGyroZ.udpPortConnect(udpPortGyroZ);
-    udpConnectionAccelX.udpPortConnect(udpPortAccelX);
-    udpConnectionAccelY.udpPortConnect(udpPortAccelY);
-    udpConnectionAccelZ.udpPortConnect(udpPortAccelZ);
+    udpConnectionGyroX.udpPortConnect  ( udpPortGyroX  );
+    udpConnectionGyroY.udpPortConnect  ( udpPortGyroY  );
+    udpConnectionGyroZ.udpPortConnect  ( udpPortGyroZ  );
+    udpConnectionAccelX.udpPortConnect ( udpPortAccelX );
+    udpConnectionAccelY.udpPortConnect ( udpPortAccelY );
+    udpConnectionAccelZ.udpPortConnect ( udpPortAccelZ );
 
 }
 
@@ -206,20 +232,21 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     midiMessages.clear();
     
     // Audio input to buffer
-    int numSamples = buffer.getNumSamples();
+    int numSamples    = buffer.getNumSamples();
     auto* leftChannel = buffer.getWritePointer(0);
     // auto* rightChannel = buffer.getWritePointer(1);
     
     // Audio Gain
-    buffer.applyGain(*inputGainParam);
+    buffer.applyGain ( *inputGainParam );
+    
     currentLevel = buffer.getRMSLevel(0, 0, numSamples);
     
     // Noise Gate Values
-    noiseGate.setThreshold(*gateThresholdParam);
-    noiseGate.levelIn(currentLevel);
+    noiseGate.setThreshold ( *gateThresholdParam );
+    noiseGate.levelIn      ( currentLevel        );
     
     // Level to Midi Velocity
-    midiInfo.setVelocity(currentLevel);
+    midiInfo.setVelocity ( currentLevel );
     
     // Read XYZ values from Arduio via UDP
     udpConnectionGyroX.readArduinoStream();
@@ -232,9 +259,9 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     // DSP!
     for (int i=0; i<numSamples; i++)
     {
-        float gatedSample = noiseGate.processGate(leftChannel[i]);
-        float filteredSample = bandLimiter.process(gatedSample);
-        float clippedSample = waveClipper.clipSignal(filteredSample);
+        float gatedSample    = noiseGate.processGate  ( leftChannel[i] );
+        float filteredSample = bandLimiter.process    ( gatedSample    );
+        float clippedSample  = waveClipper.clipSignal ( filteredSample );
 
         if (noiseGate.currentGateState() == true)
         {
@@ -242,39 +269,41 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         }
         else
         {
-            float cycleLenght = zeroXing.process(clippedSample);
-            freq = freqCalc.freqCalc(cycleLenght);
+            float cycleLenght = zeroXing.process  ( clippedSample );
+            freq              = freqCalc.freqCalc ( cycleLenght   );
         }
 
     }   // END DSP LOOP
     
     
     // MIDI Note Values
-    currentMidiNoteNumber = frequencyToMidi.getMidiFromFreq(freq);
-    triggerNewNote = midiInfo.setNoteTrigger(currentMidiNoteNumber);
-    previousMidiNoteNumber = midiInfo.getPreviousNoteNumber();
-    noteVelocity = midiInfo.getVelocity();
+    currentMidiNoteNumber  = frequencyToMidi.getMidiFromFreq ( freq );
+    triggerNewNote         = midiInfo.setNoteTrigger         ( currentMidiNoteNumber );
+    previousMidiNoteNumber = midiInfo.getPreviousNoteNumber  ();
+    noteVelocity           = midiInfo.getVelocity            ();
     
     // MIDI Note On/Off Logic
     if (triggerNewNote)
     {
         if (currentMidiNoteNumber == 0)
         {
-            midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
+            midiMessages.addEvent( MidiMessage::allNotesOff( midiChannel ), midiMessages.getLastEventTime() + 1 );
         }
         else if (previousMidiNoteNumber == 0 && currentMidiNoteNumber != 0)
         {
-            midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
-            midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), midiMessages.getLastEventTime() + 1);
+            midiMessages.addEvent ( MidiMessage::allNotesOff( midiChannel ), midiMessages.getLastEventTime() + 1 );
+            midiMessages.addEvent ( MidiMessage::noteOn( midiChannel, currentMidiNoteNumber, noteVelocity ),
+                                    midiMessages.getLastEventTime() + 1 );
         }
         else if (previousMidiNoteNumber != 0 && currentMidiNoteNumber != 0)
         {
-            midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
-            midiMessages.addEvent(MidiMessage::noteOn(midiChannel, currentMidiNoteNumber, noteVelocity), midiMessages.getLastEventTime() + 1);
+            midiMessages.addEvent ( MidiMessage::allNotesOff( midiChannel ), midiMessages.getLastEventTime() + 1 );
+            midiMessages.addEvent ( MidiMessage::noteOn( midiChannel, currentMidiNoteNumber, noteVelocity ),
+                                    midiMessages.getLastEventTime() + 1 );
         }
         else
         {
-            midiMessages.addEvent(MidiMessage::allNotesOff(midiChannel), midiMessages.getLastEventTime() + 1);
+            midiMessages.addEvent ( MidiMessage::allNotesOff( midiChannel ), midiMessages.getLastEventTime() + 1 );
         }
         
     }   // END MIDI NOTE ON/OFF LOGIC
@@ -293,12 +322,12 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     gyroZOnOff = *gyroZOnOffParameter;
     
     // Sets shape of value mappings (linear, log, exp, exp-log, log-exp)
-    udpConnectionAccelX.setValueMapShape(*accelMappingShapeParameter);
-    udpConnectionAccelY.setValueMapShape(*accelMappingShapeParameter);
-    udpConnectionAccelZ.setValueMapShape(*accelMappingShapeParameter);
-    udpConnectionGyroX.setValueMapShape(*gyroMappingShapeParameter);
-    udpConnectionGyroY.setValueMapShape(*gyroMappingShapeParameter);
-    udpConnectionGyroZ.setValueMapShape(*gyroMappingShapeParameter);
+    udpConnectionAccelX.setValueMapShape ( *accelMappingShapeParameter );
+    udpConnectionAccelY.setValueMapShape ( *accelMappingShapeParameter );
+    udpConnectionAccelZ.setValueMapShape ( *accelMappingShapeParameter );
+    udpConnectionGyroX.setValueMapShape  ( *gyroMappingShapeParameter  );
+    udpConnectionGyroY.setValueMapShape  ( *gyroMappingShapeParameter  );
+    udpConnectionGyroZ.setValueMapShape  ( *gyroMappingShapeParameter  );
     
     // Zero or Reset axis orientation
     if (*zeroAccelXValuesParameter != 0.0f)
@@ -341,67 +370,78 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     // allowing Midi Learn to receive one value at a time
     if (*midiLearnFocusParameter != 0)
     {
-        if (*midiLearnFocusParameter == 1)
+        switch ((int)*midiLearnFocusParameter)
         {
-            accelXOnOff = 1;
-            accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
-        }
-        else if (*midiLearnFocusParameter == 2)
-        {
-            accelYOnOff = 1;
-            accelXOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
-        }
-        else if (*midiLearnFocusParameter == 3)
-        {
-            accelZOnOff = 1;
-            accelXOnOff = accelYOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
-        }
-        else if (*midiLearnFocusParameter == 4)
-        {
-            gyroXOnOff = 1;
-            accelXOnOff = accelYOnOff = accelZOnOff = gyroYOnOff = gyroZOnOff = 0;
-        }
-        else if (*midiLearnFocusParameter == 5)
-        {
-            gyroYOnOff = 1;
-            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroZOnOff = 0;
-        }
-        else if (*midiLearnFocusParameter == 6)
-        {
-            gyroZOnOff = 1;
-            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = 0;
+            // Midi Learn Accel X
+            case 1:
+                accelXOnOff = 1;
+                accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+                break;
+            // Midi Learn Accel Y
+            case 2:
+                accelYOnOff = 1;
+                accelXOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+                break;
+            // Midi Learn Accel Z
+            case 3:
+                accelZOnOff = 1;
+                accelXOnOff = accelYOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+                break;
+            // Midi Learn Gyro X
+            case 4:
+                gyroXOnOff = 1;
+                accelXOnOff = accelYOnOff = accelZOnOff = gyroYOnOff = gyroZOnOff = 0;
+                break;
+            // Midi Learn Gyro Y
+            case 5:
+                gyroYOnOff = 1;
+                accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroZOnOff = 0;
+                break;
+            // Midi Learn Gyro Z
+            case 6:
+                gyroZOnOff = 1;
+                accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = 0;
+                break;
+            default:
+                break;
         }
     }
     
     // Sends Midi CC Value according to On/Off parameter and midiLearnFocusParameter logic
     if (accelXOnOff == 1)
     {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 80, udpConnectionAccelX.getCCValue()), midiMessages.getLastEventTime() + 1);
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 80, udpConnectionAccelX.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
     }
     
     if (accelYOnOff == 1)
     {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 81, udpConnectionAccelY.getCCValue()), midiMessages.getLastEventTime() + 1);
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 81, udpConnectionAccelY.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
     }
     
     if (accelZOnOff == 1)
     {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 82, udpConnectionAccelZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 82, udpConnectionAccelZ.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
     }
     
     if (gyroXOnOff == 1)
     {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 16, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 16, udpConnectionGyroZ.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
     }
     
     if (gyroYOnOff == 1)
     {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 17, udpConnectionGyroY.getCCValue()), midiMessages.getLastEventTime() + 1);
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 17, udpConnectionGyroY.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
     }
     
     if (gyroZOnOff == 1)
     {
-        midiMessages.addEvent(MidiMessage::controllerEvent(1, 18, udpConnectionGyroZ.getCCValue()), midiMessages.getLastEventTime() + 1);
+        midiMessages.addEvent ( MidiMessage::controllerEvent( 1, 18, udpConnectionGyroZ.getCCValue() ),
+                                midiMessages.getLastEventTime() + 1 );
     }
     // END MIDI CC VALUE PROCESSING
     
