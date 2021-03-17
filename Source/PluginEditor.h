@@ -14,6 +14,7 @@
 #include "PluginProcessor.h"
 #include "OSCHandler.h"
 #include "ArduinoToMidiCC.h"
+#include "TitleHeader.h"
 
 //==============================================================================
 /**
@@ -45,6 +46,10 @@ private:
     /// Zeros the orientation to the current position of sensors
     void orientationZeroing(ComboBox& box, ArduinoToMidiCC& imuAxis, float imuVal);
     
+    
+    // Title Areas
+    TitleHeader titleHeader;
+    TitleFooter titleFooter;
 
     // Sliders
     Slider inGainSlider;

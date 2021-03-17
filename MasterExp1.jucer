@@ -40,6 +40,8 @@
             file="Source/ArduinoToMidiCC.cpp"/>
       <FILE id="J0TFKS" name="ArduinoToMidiCC.h" compile="0" resource="0"
             file="Source/ArduinoToMidiCC.h"/>
+      <FILE id="uEw1kF" name="TitleHeader.cpp" compile="1" resource="0" file="Source/TitleHeader.cpp"/>
+      <FILE id="x4K9YC" name="TitleHeader.h" compile="0" resource="0" file="Source/TitleHeader.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

@@ -36,6 +36,15 @@ MasterExp1AudioProcessorEditor::MasterExp1AudioProcessorEditor (MasterExp1AudioP
     // Timer
     Timer::startTimerHz(60);
     
+    // Header & Footer
+    titleHeader.setBackgroundColor( onyx );
+    titleHeader.setTextColor       ( magicMint );
+    addAndMakeVisible              ( titleHeader );
+    
+    titleFooter.setBackgroundColor ( onyx );
+    titleFooter.setTextColor       ( magicMint );
+    addAndMakeVisible              ( titleFooter );
+    
     // Slider Setup
     Slider::SliderStyle vertSlider = Slider::SliderStyle::LinearVertical;
     
@@ -154,6 +163,12 @@ void MasterExp1AudioProcessorEditor::resized()
     float labelHeight = 50.0f;
     
     Rectangle<int> totalArea = getLocalBounds();
+    
+    Rectangle<int> headerArea = totalArea.removeFromTop    ( 75 ).reduced ( padding );
+    Rectangle<int> footerArea = totalArea.removeFromBottom ( 30 ).reduced ( padding );
+    
+    titleHeader.setBounds ( headerArea );
+    titleFooter.setBounds ( footerArea );
     
     Rectangle<int> sliderArea  = totalArea.removeFromLeft( totalArea.getWidth() * 0.25f ).reduced( padding );
     Rectangle<int> onOffArea   = totalArea.removeFromLeft( totalArea.getWidth() * 0.5f  ).reduced( padding );
