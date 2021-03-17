@@ -50,7 +50,7 @@ int ArduinoToMidiCC::getCCValue(float sensorValue)
         ccValue = getGyroCC( sensorValue );
     else
         ccValue = getAccelCC( sensorValue );
-    
+
     return ccValue;
 }
 

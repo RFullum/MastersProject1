@@ -335,24 +335,61 @@ void MasterExp1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     //
     
     if (prevAccelXCC != *accelXCCValParameter)
+    {
         midiMessages.addEvent( MidiMessage::controllerEvent( 1, 80, *accelXCCValParameter ), midiMessages.getLastEventTime() + 1 );
+        
+        prevAccelXCC = *accelXCCValParameter;
+    }
+        
     
     if (prevAccelYCC != *accelYCCValParameter)
+    {
         midiMessages.addEvent( MidiMessage::controllerEvent( 1, 81, *accelYCCValParameter ), midiMessages.getLastEventTime() + 1 );
+        
+        prevAccelYCC = *accelYCCValParameter;
+    }
+        
     
     if (prevAccelZCC != *accelZCCValParameter)
+    {
         midiMessages.addEvent( MidiMessage::controllerEvent( 1, 82, *accelZCCValParameter ), midiMessages.getLastEventTime() + 1 );
+        
+        prevAccelZCC = *accelZCCValParameter;
+    }
+        
     
     if (prevGyroXCC != *gyroXCCValParameter)
+    {
         midiMessages.addEvent( MidiMessage::controllerEvent( 1, 16, *gyroXCCValParameter ), midiMessages.getLastEventTime() + 1 );
+        
+        prevGyroXCC= *gyroXCCValParameter;
+    }
+        
     
     if (prevGyroYCC != *gyroYCCValParameter)
+    {
         midiMessages.addEvent( MidiMessage::controllerEvent( 1, 17, *gyroYCCValParameter ), midiMessages.getLastEventTime() + 1 );
+        
+        prevGyroYCC = *gyroYCCValParameter;
+    }
+        
     
     if (prevGyroZCC != *gyroZCCValParameter)
+    {
         midiMessages.addEvent( MidiMessage::controllerEvent( 1, 18, *gyroZCCValParameter ), midiMessages.getLastEventTime() + 1 );
+        
+        prevGyroZCC = *gyroZCCValParameter;
+    }
+        
     
-    
+    //DBG(*accelXCCValParameter);
+    //DBG(*accelYCCValParameter);
+    //DBG(*accelZCCValParameter);
+    //DBG(*gyroXCCValParameter);
+    //DBG(*gyroYCCValParameter);
+    //DBG(*gyroZCCValParameter);
+    //DBG("");
+     
     // END MIDI CC VALUE PROCESSING
     
     

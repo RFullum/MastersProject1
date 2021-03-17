@@ -280,9 +280,9 @@ void MasterExp1AudioProcessorEditor::timerCallback()
     ardAccelX.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
     ardAccelY.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
     ardAccelZ.setValueMapShape ( accelShapeBox.getSelectedItemIndex() );
-    ardGyroX.setValueMapShape  ( accelShapeBox.getSelectedItemIndex() );
-    ardGyroY.setValueMapShape  ( accelShapeBox.getSelectedItemIndex() );
-    ardGyroZ.setValueMapShape  ( accelShapeBox.getSelectedItemIndex() );
+    ardGyroX.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex() );
+    ardGyroY.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex() );
+    ardGyroZ.setValueMapShape  ( gyroShapeBox.getSelectedItemIndex() );
     
     
     // Zero or Reset axis orientation
@@ -291,51 +291,57 @@ void MasterExp1AudioProcessorEditor::timerCallback()
     orientationZeroing ( zeroZBox, ardAccelZ, ardOSC.getAccelZ() );
     
     // Get global on/off value from parameter tree
-    accelXOnOff = accelXBox.getSelectedItemIndex();
-    accelYOnOff = accelYBox.getSelectedItemIndex();
-    accelZOnOff = accelZBox.getSelectedItemIndex();
-    
-    gyroXOnOff = gyroXBox.getSelectedItemIndex();
-    gyroYOnOff = gyroYBox.getSelectedItemIndex();
-    gyroZOnOff = gyroZBox.getSelectedItemIndex();
-    
     // Use Midi Learn Focus Parameter to solo individual values
     // allowing Midi Learn to receive one value at a time
     switch (midiLearnBox.getSelectedItemIndex())
     {
         case 0:
+            accelXOnOff = ( accelXBox.getSelectedItemIndex() == 0 ) ? false : true;
+            accelYOnOff = ( accelYBox.getSelectedItemIndex() == 0 ) ? false : true;
+            accelZOnOff = ( accelZBox.getSelectedItemIndex() == 0 ) ? false : true;
+            
+            gyroXOnOff = ( gyroXBox.getSelectedItemIndex() == 0 ) ? false : true;
+            gyroYOnOff = ( gyroYBox.getSelectedItemIndex() == 0 ) ? false : true;
+            gyroZOnOff = ( gyroZBox.getSelectedItemIndex() == 0 ) ? false : true;
             break;
         // Midi Learn Accel X
         case 1:
-            accelXOnOff = 1;
-            accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+            accelXOnOff = true;
+            accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = false;
             break;
         // Midi Learn Accel Y
         case 2:
-            accelYOnOff = 1;
-            accelXOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+            accelYOnOff = true;
+            accelXOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = false;
             break;
         // Midi Learn Accel Z
         case 3:
-            accelZOnOff = 1;
-            accelXOnOff = accelYOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = 0;
+            accelZOnOff = true;
+            accelXOnOff = accelYOnOff = gyroXOnOff = gyroYOnOff = gyroZOnOff = false;
             break;
         // Midi Learn Gyro X
         case 4:
-            gyroXOnOff = 1;
-            accelXOnOff = accelYOnOff = accelZOnOff = gyroYOnOff = gyroZOnOff = 0;
+            gyroXOnOff = true;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroYOnOff = gyroZOnOff = false;
             break;
         // Midi Learn Gyro Y
         case 5:
-            gyroYOnOff = 1;
-            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroZOnOff = 0;
+            gyroYOnOff = true;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroZOnOff = false;
             break;
         // Midi Learn Gyro Z
         case 6:
-            gyroZOnOff = 1;
-            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = 0;
+            gyroZOnOff = true;
+            accelXOnOff = accelYOnOff = accelZOnOff = gyroXOnOff = gyroYOnOff = false;
             break;
         default:
+            accelXOnOff = ( accelXBox.getSelectedItemIndex() == 0 ) ? false : true;
+            accelYOnOff = ( accelYBox.getSelectedItemIndex() == 0 ) ? false : true;
+            accelZOnOff = ( accelZBox.getSelectedItemIndex() == 0 ) ? false : true;
+            
+            gyroXOnOff = ( gyroXBox.getSelectedItemIndex() == 0 ) ? false : true;
+            gyroYOnOff = ( gyroYBox.getSelectedItemIndex() == 0 ) ? false : true;
+            gyroZOnOff = ( gyroZBox.getSelectedItemIndex() == 0 ) ? false : true;
             break;
     }
     
@@ -355,8 +361,8 @@ void MasterExp1AudioProcessorEditor::timerCallback()
     if (gyroYOnOff)
         gyroYCCSlider.setValue ( ardGyroY.getCCValue( ardOSC.getGyroY() ) );
     
-    if (gyroXOnOff)
-        gyroXCCSlider.setValue ( ardGyroZ.getCCValue( ardOSC.getGyroZ() ) );
+    if (gyroZOnOff)
+        gyroZCCSlider.setValue ( ardGyroZ.getCCValue( ardOSC.getGyroZ() ) );
 }
 
 /// Zeros the orientation to the current position of sensors
@@ -443,4 +449,5 @@ void MasterExp1AudioProcessorEditor::comboBoxSetup(ComboBox& boxInstance, String
     
     addAndMakeVisible ( boxInstance );
 }
+
 

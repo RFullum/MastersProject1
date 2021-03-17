@@ -41,10 +41,6 @@ ArduinoReceiverOSC::~ArduinoReceiverOSC()
 /// Automatically called when an OSC Message comes in. Checks the address, and sets appropriate variable with incoming float
 void ArduinoReceiverOSC::oscMessageReceived(const OSCMessage& message)
 {
-    //DBG(message.getAddressPattern().toString());
-    //DBG(message[0].getFloat32());
-    //DBG("");
-    
     if (message.getAddressPattern().toString() == accelXAddress.toString())
         accelXVal = message[0].getFloat32();
     else if (message.getAddressPattern().toString() == accelYAddress.toString())

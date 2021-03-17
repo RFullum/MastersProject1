@@ -45,6 +45,7 @@ private:
     /// Zeros the orientation to the current position of sensors
     void orientationZeroing(ComboBox& box, ArduinoToMidiCC& imuAxis, float imuVal);
     
+
     // Sliders
     Slider inGainSlider;
     Slider gateThresholdSlider;
