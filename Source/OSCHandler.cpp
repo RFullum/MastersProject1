@@ -11,8 +11,18 @@
 #include "OSCHandler.h"
 
 
-ArduinoReceiverOSC::ArduinoReceiverOSC() : accelXAddress("/juce/accelX"), accelYAddress("/juce/accelY"), accelZAddress("/juce/accelZ"),
-                                           gyroXAddress("/juce/gyroX"),   gyroYAddress("/juce/gyroY"),   gyroZAddress("/juce/gyroZ")
+ArduinoReceiverOSC::ArduinoReceiverOSC() :
+    accelXVal(0.0f), accelYVal(0.0f), accelZVal(0.0f),
+    gyroXVal(0.0f),  gyroYVal(0.0f),  gyroZVal(0.0f),
+
+    accelXSmooth(0.0f), accelYSmooth(0.0f), accelZSmooth(0.0f),
+    gyroXSmooth(0.0f),  gyroYSmooth(0.0f),  gyroZSmooth(0.0f),
+
+    smoothingFactor(0.4f),
+
+    accelXAddress("/juce/accelX"), accelYAddress("/juce/accelY"), accelZAddress("/juce/accelZ"),
+    gyroXAddress("/juce/gyroX"),   gyroYAddress("/juce/gyroY"),   gyroZAddress("/juce/gyroZ")
+
 {
     connect     ( 9001 );
     addListener ( this );                    // Bundles
@@ -73,38 +83,50 @@ void ArduinoReceiverOSC::oscBundleReceived(const juce::OSCBundle& bundle)
     }
 }
 
-/// Returns float of the raw Accelerometer X axis value
+/// Returns smoothed float of the raw Accelerometer X axis value
 float ArduinoReceiverOSC::getAccelX()
 {
-    return accelXVal;
+    accelXSmooth += ( accelXVal - accelXSmooth ) * smoothingFactor;
+    
+    return accelXSmooth;
 }
 
-/// Returns float of the raw Accelerometer Y axis value
+/// Returns smoothed float of the raw Accelerometer Y axis value
 float ArduinoReceiverOSC::getAccelY()
 {
-    return accelYVal;
+    accelYSmooth += ( accelYVal - accelYSmooth ) * smoothingFactor;
+    
+    return accelYSmooth;
 }
 
-/// Returns float of the raw Accelerometer Z axis value
+/// Returns smoothed float of the raw Accelerometer Z axis value
 float ArduinoReceiverOSC::getAccelZ()
 {
-    return accelZVal;
+    accelZSmooth += ( accelZVal - accelZSmooth ) * smoothingFactor;
+    
+    return accelZSmooth;
 }
 
-/// Returns float of the raw Gyroscope X axis value
+/// Returns smoothed float of the raw Gyroscope X axis value
 float ArduinoReceiverOSC::getGyroX()
 {
-    return gyroXVal;
+    gyroXSmooth += ( gyroXVal - gyroXSmooth ) * smoothingFactor;
+    
+    return gyroXSmooth;
 }
 
-/// Returns float of the raw Gyroscope Y axis value
+/// Returns smoothed float of the raw Gyroscope Y axis value
 float ArduinoReceiverOSC::getGyroY()
 {
-    return gyroYVal;
+    gyroYSmooth += ( gyroYVal - gyroYSmooth ) * smoothingFactor;
+    
+    return gyroYSmooth;
 }
 
-/// Returns float of the raw Gyroscope Z axis value
+/// Returns smoothed float of the raw Gyroscope Z axis value
 float ArduinoReceiverOSC::getGyroZ()
 {
+    gyroZSmooth += ( gyroZVal - gyroZSmooth ) * smoothingFactor;
+    
     return gyroZVal;
 }

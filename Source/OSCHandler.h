@@ -21,22 +21,22 @@ public:
     ArduinoReceiverOSC();
     ~ArduinoReceiverOSC();
     
-    /// Returns float of the raw Accelerometer X axis value
+    /// Returns smoothed float of the raw Accelerometer X axis value
     float getAccelX();
     
-    /// Returns float of the raw Accelerometer Y axis value
+    /// Returns smoothed float of the raw Accelerometer Y axis value
     float getAccelY();
     
-    /// Returns float of the raw Accelerometer Z axis value
+    /// Returns smoothed float of the raw Accelerometer Z axis value
     float getAccelZ();
     
-    /// Returns float of the raw Gyroscope X axis value
+    /// Returns smoothed float of the raw Gyroscope X axis value
     float getGyroX();
     
-    /// Returns float of the raw Gyroscope Y axis value
+    /// Returns smoothed float of the raw Gyroscope Y axis value
     float getGyroY();
     
-    /// Returns float of the raw Gyroscope Z axis value
+    /// Returns smoothed float of the raw Gyroscope Z axis value
     float getGyroZ();
     
 private:
@@ -55,6 +55,15 @@ private:
     float gyroXVal;
     float gyroYVal;
     float gyroZVal;
+    
+    float accelXSmooth;
+    float accelYSmooth;
+    float accelZSmooth;
+    float gyroXSmooth;
+    float gyroYSmooth;
+    float gyroZSmooth;
+    
+    float smoothingFactor;
     
     OSCAddress accelXAddress;
     OSCAddress accelYAddress;
